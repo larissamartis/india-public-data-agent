@@ -1,0 +1,17 @@
+# MoSPI API /api/asi/getASIData: NIC 2008, all industries, combined sector, 2008-09 onwards.
+# Money in ₹ lakh, people as counts. Value added can be negative, so no lower bound.
+source: mospi
+table: mospi_asi
+key: [year, state, sector, indicator, nic_code]
+columns:
+  nic_classification: {type: VARCHAR}
+  year: {type: VARCHAR, not_null: true}
+  state: {type: VARCHAR, not_null: true, state_name: true, allow_names: [All India]}
+  sector: {type: VARCHAR, not_null: true}
+  indicator: {type: VARCHAR, not_null: true}
+  nic_code: {type: VARCHAR}
+  nic_description: {type: VARCHAR}
+  nic_type: {type: VARCHAR}
+  value: {type: DOUBLE}
+  unit: {type: VARCHAR}
+row_count_tolerance: 0.2

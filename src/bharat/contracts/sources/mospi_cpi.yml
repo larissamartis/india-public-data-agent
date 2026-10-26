@@ -1,0 +1,17 @@
+# MoSPI API /api/cpi/getCPIIndex, base 2012, current series, Jan 2013 to Dec 2025.
+source: mospi
+table: mospi_cpi
+key: [year, month, state, sector, group_name, subgroup]
+columns:
+  base_year: {type: VARCHAR, not_null: true, allowed: ["2012"]}
+  year: {type: VARCHAR, not_null: true}
+  month: {type: VARCHAR, not_null: true}
+  state: {type: VARCHAR, not_null: true, state_name: true, allow_names: [All India]}
+  sector: {type: VARCHAR, not_null: true}
+  group_name: {type: VARCHAR}
+  subgroup: {type: VARCHAR}
+  # Index values can be missing (Housing has no rural index).
+  index_value: {type: DOUBLE, min: 0, max: 1000}
+  inflation: {type: DOUBLE, min: -60, max: 200}
+  status: {type: VARCHAR}
+row_count_tolerance: 0.2

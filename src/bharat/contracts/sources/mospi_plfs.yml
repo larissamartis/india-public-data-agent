@@ -1,0 +1,25 @@
+# MoSPI API /api/plfs/getData: LFPR, WPR and unemployment rate (all per cent).
+# July–June years 2017-18 to 2023-24, then calendar years 2022 onwards; never mixed.
+source: mospi
+table: mospi_plfs
+key:
+  [year_type, year, frequency, indicator, state, gender, sector, age_group, weekly_status,
+   religion, social_group, education, quarter, month]
+columns:
+  year_type: {type: VARCHAR, not_null: true}
+  year: {type: VARCHAR, not_null: true}
+  frequency: {type: VARCHAR}
+  indicator: {type: VARCHAR, not_null: true}
+  state: {type: VARCHAR, not_null: true, state_name: true, allow_names: [All India]}
+  gender: {type: VARCHAR}
+  sector: {type: VARCHAR}
+  age_group: {type: VARCHAR}
+  weekly_status: {type: VARCHAR}
+  religion: {type: VARCHAR}
+  social_group: {type: VARCHAR}
+  education: {type: VARCHAR}
+  quarter: {type: VARCHAR}
+  month: {type: VARCHAR}
+  value: {type: DOUBLE, min: 0, max: 100}
+  unit: {type: VARCHAR}
+row_count_tolerance: 0.2
