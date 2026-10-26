@@ -1,4 +1,4 @@
-# Bharat Data Analyst: design
+# India Public Data Agent: design
 
 Status: agreed scope, 26 Oct 2026. Items marked **(to confirm)** wait on the source data check.
 

@@ -1,6 +1,6 @@
-# Bharat Data Analyst
+# India Public Data Agent
 
-An AI analyst that answers plain-English questions about India's public state-level data,
-showing the SQL, the sources and their dates, and saying "I don't know" when the data can't answer.
+Plain-English questions on India's state-level public data. Answers come with a chart, the exact
+SQL that ran, the sources and their dates, or an honest "I don't know" when the data can't answer.
 
 Work in progress. See [docs/design.md](docs/design.md) for the design and build phases.

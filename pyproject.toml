@@ -1,5 +1,5 @@
 [project]
-name = "bharat-data-analyst"
+name = "india-public-data-agent"
 version = "0.1.0"
 description = "An AI analyst for India's public state-level data, with traceable, verified answers."
 readme = "README.md"
