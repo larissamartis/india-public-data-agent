@@ -1,0 +1,46 @@
+name: Ingest
+
+# Click-to-run: loads one source, checks its contract and keeps the bronze Parquet as a
+# downloadable artifact for 14 days. Nothing is committed.
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Source to load
+        type: choice
+        options: [gst, mospi-cpi, mospi-plfs, mospi-asi]
+        default: gst
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Ingest
+        env:
+          SOURCE: ${{ inputs.source }}
+          MOSPI_EMAIL: ${{ secrets.MOSPI_EMAIL }}
+          MOSPI_PASSWORD: ${{ secrets.MOSPI_PASSWORD }}
+        run: uv run python -m bharat.ingest "$SOURCE"
+
+      - name: Keep bronze files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bronze-${{ inputs.source }}
+          path: data/bronze/
+          retention-days: 14
+          if-no-files-found: warn
