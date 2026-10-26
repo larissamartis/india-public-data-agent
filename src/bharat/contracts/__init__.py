@@ -7,6 +7,7 @@ from bharat.contracts.checker import (
     check_contract,
     enforce_contract,
     load_contract,
+    load_source_contract,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "check_contract",
     "enforce_contract",
     "load_contract",
+    "load_source_contract",
 ]

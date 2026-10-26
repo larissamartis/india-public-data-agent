@@ -119,6 +119,17 @@ def test_load_contract_from_yaml(tmp_path):
     assert contract.columns["a"].not_null is True
 
 
+def test_load_columns_and_allowed_names_are_accepted(con):
+    con.execute("alter table cpi add column _source_ref varchar")
+    con.execute("insert into cpi values ('All India', date '2026-08-01', 'Rural', 190, 'x')")
+    data = {**CONTRACT, "columns": {**CONTRACT["columns"]}}
+    assert ("state_name", "state") in rules(
+        check_contract(con, Contract.model_validate(data), today=TODAY)
+    )
+    data["columns"]["state"] = {**data["columns"]["state"], "allow_names": ["All India"]}
+    assert check_contract(con, Contract.model_validate(data), today=TODAY) == []
+
+
 def test_contract_rejects_unknown_rule_names():
     with pytest.raises(ValueError):
         Contract.model_validate({**CONTRACT, "colums": {}})

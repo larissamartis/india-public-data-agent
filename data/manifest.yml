@@ -1,0 +1,4 @@
+# Hand-downloaded source files, uploaded as assets on the `raw-inputs` GitHub Release.
+# One entry per file: name (as uploaded), source, original_url, downloaded_on, sha256, notes.
+# Get a file's sha256 in PowerShell with: (Get-FileHash <file> -Algorithm SHA256).Hash.ToLower()
+files: []

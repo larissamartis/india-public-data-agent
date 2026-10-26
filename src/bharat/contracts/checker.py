@@ -11,13 +11,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import date, datetime
+from importlib import resources
 from pathlib import Path
 
 import duckdb
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from bharat.reference.states import UnknownStateError, resolve_state
+from bharat.reference.states import UnknownStateError, normalise_name, resolve_state
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _SAMPLE = 5
@@ -32,6 +33,8 @@ class ColumnRule(BaseModel):
     max: float | None = None
     allowed: list[str] | None = None
     state_name: bool = False
+    # Names that are fine in a state column without being states, such as "All India".
+    allow_names: list[str] = Field(default_factory=list)
 
 
 class Freshness(BaseModel):
@@ -76,6 +79,16 @@ def load_contract(path: str | Path) -> Contract:
     return Contract.model_validate(data)
 
 
+def load_source_contract(name: str) -> Contract:
+    """Load a contract shipped with the package, from contracts/sources/<name>.yml."""
+    text = (
+        resources.files("bharat.contracts")
+        .joinpath("sources", f"{name}.yml")
+        .read_text(encoding="utf-8")
+    )
+    return Contract.model_validate(yaml.safe_load(text))
+
+
 def _quote(name: str) -> str:
     if not _IDENTIFIER.match(name):
         raise ValueError(f"Not a plain identifier: {name!r}")
@@ -115,7 +128,9 @@ def check_contract(
             )
         else:
             usable[name] = rule
-    for name in sorted(actual.keys() - contract.columns.keys()):
+    # Columns starting with "_" are load details (source file, download time), not source data.
+    extra = {n for n in actual.keys() - contract.columns.keys() if not n.startswith("_")}
+    for name in sorted(extra):
         violations.append(Violation("unexpected_column", name, "column not in contract"))
 
     row_count = con.execute(f"select count(*) from {table}").fetchone()[0]
@@ -198,8 +213,11 @@ def _check_column(
                 f"select distinct {col} from {table} where {col} is not null order by 1"
             ).fetchall()
         ]
+        exempt = {normalise_name(n) for n in rule.allow_names}
         unknown = []
         for value in names:
+            if normalise_name(value) in exempt:
+                continue
             try:
                 resolve_state(value)
             except UnknownStateError:
