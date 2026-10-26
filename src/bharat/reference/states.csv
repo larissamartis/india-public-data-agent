@@ -1,0 +1,39 @@
+state_code,state_name,kind,valid_from,valid_to,aliases
+1,Jammu and Kashmir,ut,,,J&K|J and K|Jammu & Kashmir
+2,Himachal Pradesh,state,,,
+3,Punjab,state,,,
+4,Chandigarh,ut,,,
+5,Uttarakhand,state,2000-11-09,,Uttaranchal
+6,Haryana,state,,,
+7,Delhi,ut,,,NCT of Delhi|National Capital Territory of Delhi|Delhi NCT
+8,Rajasthan,state,,,
+9,Uttar Pradesh,state,,,
+10,Bihar,state,,,
+11,Sikkim,state,,,
+12,Arunachal Pradesh,state,,,
+13,Nagaland,state,,,
+14,Manipur,state,,,
+15,Mizoram,state,,,
+16,Tripura,state,,,
+17,Meghalaya,state,,,
+18,Assam,state,,,
+19,West Bengal,state,,,
+20,Jharkhand,state,2000-11-15,,
+21,Odisha,state,,,Orissa
+22,Chhattisgarh,state,2000-11-01,,Chattisgarh
+23,Madhya Pradesh,state,,,
+24,Gujarat,state,,,
+25,Daman and Diu,ut,,2020-01-25,
+26,Dadra and Nagar Haveli,ut,,2020-01-25,D and N Haveli
+27,Maharashtra,state,,,
+28,Andhra Pradesh,state,,,
+29,Karnataka,state,,,
+30,Goa,state,,,
+31,Lakshadweep,ut,,,
+32,Kerala,state,,,
+33,Tamil Nadu,state,,,Tamilnadu
+34,Puducherry,ut,,,Pondicherry
+35,Andaman and Nicobar Islands,ut,,,A and N Islands|Andaman and Nicobar
+36,Telangana,state,2014-06-02,,Telengana
+37,Ladakh,ut,2019-10-31,,
+38,Dadra and Nagar Haveli and Daman and Diu,ut,2020-01-26,,DNH and DD|DNHDD
