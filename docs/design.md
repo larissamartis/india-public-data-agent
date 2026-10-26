@@ -1,6 +1,6 @@
 # India Public Data Agent: design
 
-Status: agreed scope, 26 Oct 2026. Items marked **(to confirm)** wait on the source data check.
+Status: agreed scope, 26 Oct 2026, updated after the source data check the same day.
 
 ## 1. What it is
 
@@ -29,17 +29,24 @@ raw data stays out of git.
 | # | Dataset | Source | Access |
 |---|---|---|---|
 | 1 | UPI volume and value by state, monthly | NPCI | Manual download |
-| 2 | GSDP and NSDP per capita, current and constant prices | RBI Handbook of Statistics on Indian States 2024-25 | Manual Excel |
-| 3 | Population and literacy (Census 2011) | RBI Handbook | Manual Excel |
-| 4 | Bank deposits, credit and branches | RBI Handbook | Manual Excel |
-| 5 | CPI rural, urban and combined, monthly | MoSPI API | API (token) |
-| 6 | PLFS unemployment rate, LFPR, WPR (July–June) | MoSPI API | API (token) |
-| 7 | ASI factories, output, GVA, employment | MoSPI API | API (token) |
-| 8 | NFHS-4 and NFHS-5 state indicators | data.gov.in API | API (key) |
-| 9 | Telecom and internet subscribers by service area | TRAI | Manual **(to confirm)** |
-| 10 | GST collections by state, monthly | GSTN | **(to confirm)** |
+| 2 | GSDP and NSDP per capita, current and constant prices | RBI Handbook 2024-25, Tables 19–24 | Manual Excel |
+| 3 | Population (projections, 1 July, 2011–2036) and literacy (Census 2011) | National Commission on Population; Census of India | Manual PDF / Excel |
+| 4 | Bank deposits, credit and branches (SCB) | RBI Handbook 2024-25, Tables 152, 155, 156 | Manual Excel |
+| 5 | CPI rural, urban and combined, monthly, Jan 2013–Dec 2025 (base 2012) | MoSPI API | API (token, 15 min) |
+| 6 | PLFS UR, LFPR, WPR: July–June 2017-18 to 2023-24 and calendar 2022–2025 | MoSPI API | API (token) |
+| 7 | ASI factories, output, GVA, persons engaged, 2008-09 to 2023-24 | MoSPI API | API (token) |
+| 8 | NFHS-5 (API) and NFHS-4 (CSV) state indicators | data.gov.in | API (key) + manual |
+| 9 | Telecom subscribers by service area | TRAI monthly reports | Manual PDF |
+| 10 | GST collections by state, monthly, 2017-18 onwards | GST statistics page | Scripted download |
 
-Exact endpoints, files and fields: `docs/data-sources.md` (written after the data check).
+Exact endpoints, files and fields: [data-sources.md](data-sources.md) (checked 26 Oct 2026).
+
+Decisions from the data check:
+- Sources are matched to LGD **by state name**; source-specific codes (MoSPI uses three systems) are never joined on.
+- CPI stops at December 2025 because the 2024-base series is not in the API; the two series are not spliced.
+- PLFS July–June and calendar-year figures are separate period types and never mixed in one series.
+- The UPI unclassified share is taken from each month's NPCI file, not a fixed figure.
+- MetricFlow (Apache-2.0, `dbt-metricflow[dbt-duckdb]`) is used for metric definitions at build time.
 
 ## 3. Architecture
 
@@ -107,9 +114,9 @@ within tolerance; for UPI the expected gap must be disclosed rather than closed.
 **Metrics**: defined once in YAML: id, description, formula (base or ratio), unit, grain,
 source, caveats and a **state combining rule** (sum allowed, or must recompute from parts).
 Growth (YoY, CAGR, percentage-point change) is a shared function, not a metric per case.
-MetricFlow with DuckDB **(to confirm)**; otherwise our own YAML format, validated in CI.
-Per-person metrics use official population projections if available **(to confirm)**,
-else say clearly that they use Census 2011 population.
+Metrics are written in MetricFlow's semantic-layer YAML and validated in CI; the app reads the
+compiled metric list and the tidy table, so it does not need MetricFlow at run time.
+Per-person metrics use the official population projections (1 July of each year).
 
 ## 5. Agent (fixed-step pipeline)
 
@@ -128,7 +135,7 @@ The LLM does language work. Code does everything that must be right. About 3 LLM
 | 8 Caveats | code | Rule-based: correlation, UPI unattributed share, Census 2011, PLFS vs FY, revisions, small n |
 | 9 Chart | code | Bar (ranking), line (trend), scatter with r and n (relationship), via Altair |
 
-LLM client: one OpenAI-compatible client for Gemini and Groq **(to confirm endpoints)**,
+LLM client: one OpenAI-compatible client for Gemini and Groq (both endpoints confirmed),
 temperature 0, fixed model per provider, fallback on rate limit/error/timeout, fallback logged.
 Questions are untrusted input; steps 2, 4 and 7 are code and cannot be argued with.
 
@@ -189,7 +196,8 @@ Streamlit + Altair, deployed on Streamlit Community Cloud (about 1 GB RAM, so no
 
 ## 10. Known limits (so far)
 
-- About 27.5% of UPI volume has no state attribution, so state totals do not add up to the national figure **(to confirm wording and source)**.
+- A large, month-varying share of UPI volume has no state (about 27.5% for FY2024-25 per Dataful; 41.7% in June 2025 per Business Standard), so state totals do not add up to the national figure.
+- CPI by state ends December 2025 in the MoSPI API.
 - RBI and NPCI block scripted downloads, so those refreshes depend on a manual step.
 - Census 2011 is old; literacy and population questions say so.
 - TRAI reports by service area, not state; state-level answers are refused where circles span states.
