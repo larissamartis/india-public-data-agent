@@ -1,0 +1,17 @@
+# GST statistics page, sheet Collections-Statewise: domestic collection by state, ₹ crore.
+source: gst
+table: gst_state_monthly
+key: [state_name, month]
+columns:
+  fy: {type: VARCHAR, not_null: true}
+  month: {type: DATE, not_null: true}
+  state_code_src: {type: VARCHAR}
+  state_name: {type: VARCHAR, not_null: true, state_name: true}
+  # The largest state collects tens of thousands of crore a month; small adjustments
+  # can make a component slightly negative, so only absurd values are rejected.
+  cgst: {type: DOUBLE, min: -1000, max: 200000}
+  sgst: {type: DOUBLE, min: -1000, max: 200000}
+  igst: {type: DOUBLE, min: -1000, max: 200000}
+  total: {type: DOUBLE, min: -1000, max: 500000}
+row_count_tolerance: 0.2
+freshness: {column: month, max_age_days: 120}

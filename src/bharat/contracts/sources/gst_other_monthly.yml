@@ -1,0 +1,14 @@
+# Non-state rows from the same sheet (Other Territory, OIDAR, totals), kept for reconciliation.
+source: gst
+table: gst_other_monthly
+key: [state_name, month]
+columns:
+  fy: {type: VARCHAR, not_null: true}
+  month: {type: DATE, not_null: true}
+  state_code_src: {type: VARCHAR}
+  state_name: {type: VARCHAR, not_null: true}
+  cgst: {type: DOUBLE}
+  sgst: {type: DOUBLE}
+  igst: {type: DOUBLE}
+  total: {type: DOUBLE}
+row_count_tolerance: 0.5
