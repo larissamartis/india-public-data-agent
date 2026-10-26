@@ -1,0 +1,36 @@
+[project]
+name = "bharat-data-analyst"
+version = "0.1.0"
+description = "An AI analyst for India's public state-level data, with traceable, verified answers."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "duckdb>=1.1",
+    "pydantic>=2.8",
+    "pyyaml>=6.0",
+    "sqlglot>=26.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bharat"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

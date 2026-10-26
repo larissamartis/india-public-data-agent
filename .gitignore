@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Data: raw and intermediate files never go in git
+data/raw/
+data/bronze/
+data/tmp/
+*.duckdb
+*.duckdb.wal
+!serving/*.duckdb
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
