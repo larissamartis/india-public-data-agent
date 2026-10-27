@@ -32,6 +32,7 @@ jobs:
 
       # The whole warehouse, built and tested on a tiny made-up bronze folder.
       - name: Warehouse on fixture data
+        id: warehouse
         env:
           BRONZE_DIR: data/fixture-bronze
           SERVING_DB: data/fixture-serving/serving.duckdb
@@ -41,7 +42,7 @@ jobs:
           uv run dbt build --project-dir dbt --profiles-dir dbt
 
       - name: Report dbt results
-        if: always()
+        if: always() && steps.warehouse.outcome != 'skipped'
         run: uv run python -m bharat.warehouse report --run-results dbt/target/run_results.json
 
       # Checks the metric definitions, and that they work against the fixture warehouse.

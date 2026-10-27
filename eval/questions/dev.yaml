@@ -633,15 +633,16 @@ questions:
 
 - id: D049
   type: combining_sources
-  question: What was bank credit as a percentage of GSDP at current prices in Gujarat, using credit at end-March 2024 and GSDP for 2023-24?
+  question: What was bank credit as a percentage of GSDP at current prices in Gujarat, using credit at end-March 2023 and GSDP for 2022-23?
   expected: answer
   kind: number
   unit: per cent of GSDP
+  notes: The RBI table has no 2023-24 GSDP for Gujarat, so the latest common year is used.
   gold_sql: |
     select c.value / y.value * 100 as value
     from fct_state_metric c, fct_state_metric y
-    where c.metric_id = 'scb_credit' and c.state_name = 'Gujarat' and c.period_label = '2024-03-31'
-      and y.metric_id = 'gsdp_current' and y.state_name = 'Gujarat' and y.period_label = '2023-24'
+    where c.metric_id = 'scb_credit' and c.state_name = 'Gujarat' and c.period_label = '2023-03-31'
+      and y.metric_id = 'gsdp_current' and y.state_name = 'Gujarat' and y.period_label = '2022-23'
 
 - id: D050
   type: combining_sources
