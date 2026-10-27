@@ -18,7 +18,7 @@ from pathlib import Path
 import duckdb
 
 from bharat.contracts import ContractError
-from bharat.ingest import gst, manual, mospi, rbi
+from bharat.ingest import gst, manual, mospi, population, rbi, trai
 
 SOURCES = {
     "gst": lambda out: gst.run(out),
@@ -26,6 +26,8 @@ SOURCES = {
     "mospi-plfs": lambda out: [mospi.run("mospi_plfs", out)],
     "mospi-asi": lambda out: [mospi.run("mospi_asi", out)],
     "rbi": lambda out: rbi.run(out),
+    "population": lambda out: population.run(out),
+    "trai": lambda out: trai.run(out),
 }
 # Hand-downloaded sources. Those without a parser yet can only be inspected.
 MANUAL_SOURCES = ("rbi", "npci", "trai", "nfhs", "population")

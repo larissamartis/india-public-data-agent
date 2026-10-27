@@ -1,0 +1,13 @@
+# Population projections 2011-2036 (Technical Group, National Commission on Population, MoHFW,
+# Nov 2019), Table 11: projected population on 1 July, in thousands. Projections, not counts.
+source: population
+table: population_projection
+key: [state_name, year]
+columns:
+  year: {type: INTEGER, not_null: true, min: 2011, max: 2036}
+  state_name: {type: VARCHAR, not_null: true, state_name: true, allow_names: [India]}
+  name_as_printed: {type: VARCHAR, not_null: true}
+  persons_thousand: {type: BIGINT, not_null: true, min: 0, max: 2000000}
+  male_thousand: {type: BIGINT, not_null: true, min: 0, max: 1000000}
+  female_thousand: {type: BIGINT, not_null: true, min: 0, max: 1000000}
+row_count_tolerance: 0.2

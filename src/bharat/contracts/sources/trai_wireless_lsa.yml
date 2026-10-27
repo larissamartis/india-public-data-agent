@@ -1,0 +1,17 @@
+# TRAI monthly subscription report, Annexure-II: wireless (mobile) subscribers by licensed
+# service area (LSA) at month end. LSAs are not states; Delhi, Mumbai, Kolkata are metro LSAs.
+source: trai
+table: trai_wireless_lsa
+key: [service_area, as_of]
+columns:
+  as_of: {type: DATE, not_null: true}
+  service_area:
+    type: VARCHAR
+    not_null: true
+    allowed: [Andhra Pradesh, Assam, Bihar, Delhi, Gujarat, Haryana, Himachal Pradesh,
+      Jammu & Kashmir, Karnataka, Kerala, Kolkata, Madhya Pradesh, Maharashtra, Mumbai,
+      North East, Odisha, Punjab, Rajasthan, Tamil Nadu, UP (East), UP (West), West Bengal]
+  name_as_printed: {type: VARCHAR, not_null: true}
+  wireless_subscribers: {type: BIGINT, not_null: true, min: 0, max: 300000000}
+row_count_tolerance: 0.2
+freshness: {column: as_of, max_age_days: 120}
