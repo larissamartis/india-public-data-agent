@@ -79,12 +79,15 @@ def _number(text: str) -> int | None:
 
 
 _MEASURE_WORDS = {"persons", "person", "male", "males", "females", "female"}
-# Compared on letters and digits only: the PDF uses several quote marks around '000.
-_TITLE_WORDS = {"table", "projected", "territories", "union", "000"}
 
 
 def _texts(line: list[dict]) -> set[str]:
+    """A line's words in lower case, letters and digits only."""
     return {re.sub(r"[^a-z0-9]", "", w["text"].lower()) for w in line}
+
+
+def _is_name_word(text: str) -> bool:
+    return text == "&" or (re.search(r"[A-Z]", text) is not None and not re.search(r"[a-z]", text))
 
 
 def _nearest(value: float, options: list[float]) -> int:
@@ -107,21 +110,24 @@ def parse_table_page(words: list[dict]) -> list[dict]:
     groups = len(col_x) // 3
     group_x = [sum(col_x[3 * g : 3 * g + 3]) / 3 for g in range(groups)]
 
-    # The Persons / Male / Females header row, and the last title line above it; area names
-    # sit between the two. Titles wrap differently from page to page.
+    # Area names sit between the 'TABLE - 11' line and the Persons / Male / Females header.
+    # The title in between wraps differently from page to page; it is mixed case, so the
+    # capitals rule below leaves it out.
     persons = next((ln for ln in lines if _texts(ln) & _MEASURE_WORDS), None)
     if persons is None:
         raise PopulationFormatError("no 'Persons / Male / Females' header row")
     bottom = persons[0]["top"]
-    titles = [ln for ln in lines if ln[0]["top"] < bottom and _texts(ln) & _TITLE_WORDS]
-    if not titles:
-        raise PopulationFormatError("no title line above the 'Persons' header")
-    top = titles[-1][0]["top"]
+    tables = [ln for ln in lines if ln[0]["top"] < bottom and "table" in _texts(ln)]
+    if not tables:
+        raise PopulationFormatError("no 'TABLE' line above the 'Persons' header")
+    top = tables[-1][0]["top"]
     names: list[list[str]] = [[] for _ in range(groups)]
     for line in lines:
         if top < line[0]["top"] < bottom:
             for word in line:
-                if word["text"].lower() != "year":
+                # Area names are printed in capitals. A wrapped title ("Territories ('000)")
+                # can share their line, so mixed-case words and bare symbols are left out.
+                if _is_name_word(word["text"]):
                     names[_nearest(_centre(word), group_x)].append(word["text"])
     printed = [" ".join(n) for n in names]
     if not all(printed):
