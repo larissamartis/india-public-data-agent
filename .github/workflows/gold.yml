@@ -1,0 +1,45 @@
+name: Gold
+
+# Click-to-run: compute every benchmark question's gold answer from the committed serving
+# file and commit eval/gold.json and eval/REVIEW.md for review.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: false
+
+jobs:
+  gold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Compute gold answers
+        run: uv run python -m bharat.eval gold
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898748+github-actions[bot]@users.noreply.github.com"
+          git add eval/gold.json eval/REVIEW.md
+          if git diff --cached --quiet; then
+            echo "::notice title=gold::unchanged"
+            exit 0
+          fi
+          git commit -m "eval: compute gold answers (run ${GITHUB_RUN_ID})"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "::notice title=gold::committed eval/gold.json and eval/REVIEW.md"

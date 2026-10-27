@@ -1,0 +1,1210 @@
+# Development questions: used for tuning and as worked examples. Gold answers come from
+# gold_sql run against the pinned serving file (see eval/REVIEW.md once generated).
+# Conventions: number -> one value; ranking -> rows of (name, value) in order;
+# series -> rows of (period_label, value) in time order; correlation -> one row (r, n).
+# Money in ₹ crore unless the unit says otherwise. FY = April to March.
+
+questions:
+
+# ---------------------------------------------------------------- single facts (13)
+- id: D001
+  type: single_fact
+  question: What was Kerala's total GST collection in August 2026?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gst_total' and state_name = 'Kerala' and period_label = '2026-08'
+
+- id: D002
+  type: single_fact
+  question: How much SGST did Tamil Nadu collect in July 2026?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gst_sgst' and state_name = 'Tamil Nadu' and period_label = '2026-07'
+
+- id: D003
+  type: single_fact
+  question: What was Maharashtra's GSDP at current prices in 2023-24?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gsdp_current' and state_name = 'Maharashtra' and period_label = '2023-24'
+
+- id: D004
+  type: single_fact
+  question: What was Bihar's per capita NSDP at current prices in 2023-24?
+  expected: answer
+  kind: number
+  unit: ₹
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'per_capita_nsdp_current' and state_name = 'Bihar'
+      and period_label = '2023-24'
+
+- id: D005
+  type: single_fact
+  question: How many scheduled commercial bank offices did Uttar Pradesh have at end-March 2025?
+  expected: answer
+  kind: number
+  unit: offices
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'scb_offices' and state_name = 'Uttar Pradesh'
+      and period_label = '2025-03-31'
+
+- id: D006
+  type: single_fact
+  question: What were total bank deposits in Delhi at end-March 2025?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'scb_deposits' and state_name = 'Delhi' and period_label = '2025-03-31'
+
+- id: D007
+  type: single_fact
+  question: What was scheduled commercial bank credit in Karnataka at end-March 2024?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'scb_credit' and state_name = 'Karnataka' and period_label = '2024-03-31'
+
+- id: D008
+  type: single_fact
+  question: What is the projected population of Rajasthan on 1 July 2026?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'population' and state_name = 'Rajasthan' and period_label = '2026'
+
+- id: D009
+  type: single_fact
+  question: What is the projected female population of Kerala in 2030?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'population_female' and state_name = 'Kerala' and period_label = '2030'
+
+- id: D010
+  type: single_fact
+  question: How many wireless subscribers did the Kerala service area have at the end of September 2026?
+  expected: answer
+  kind: number
+  unit: subscribers
+  caveats: [service_area]
+  gold_sql: |
+    select value from fct_lsa_metric
+    where service_area = 'Kerala' and period_label = '2026-09'
+
+- id: D011
+  type: single_fact
+  question: What was India's total scheduled commercial bank credit at end-March 2025?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  gold_sql: |
+    select value from fct_national_metric
+    where metric_id = 'scb_credit' and period_label = '2025-03-31'
+
+- id: D012
+  type: single_fact
+  question: What is India's projected population for 2025?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select value from fct_national_metric
+    where metric_id = 'population' and period_label = '2025'
+
+- id: D013
+  type: single_fact
+  question: What was Goa's IGST collection in August 2026?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gst_igst' and state_name = 'Goa' and period_label = '2026-08'
+
+# ---------------------------------------------------------------- rankings (10)
+- id: D014
+  type: ranking
+  question: Which five states or UTs collected the most GST in 2025-26 (April 2025 to March 2026)?
+  expected: answer
+  kind: ranking
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select state_name, sum(value) as value from fct_state_metric
+    where metric_id = 'gst_total'
+      and period_start >= date '2025-04-01' and period_start < date '2026-04-01'
+    group by state_name order by value desc limit 5
+
+- id: D015
+  type: ranking
+  question: Rank the top five states or UTs by GSDP at current prices in 2022-23.
+  expected: answer
+  kind: ranking
+  unit: ₹ crore
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'gsdp_current' and period_label = '2022-23'
+    order by value desc limit 5
+
+- id: D016
+  type: ranking
+  question: Which three states or UTs had the lowest per capita NSDP at current prices in 2022-23?
+  expected: answer
+  kind: ranking
+  unit: ₹
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'per_capita_nsdp_current' and period_label = '2022-23'
+    order by value asc limit 3
+
+- id: D017
+  type: ranking
+  question: Which five states or UTs had the most bank deposits at end-March 2025?
+  expected: answer
+  kind: ranking
+  unit: ₹ crore
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'scb_deposits' and period_label = '2025-03-31'
+    order by value desc limit 5
+
+- id: D018
+  type: ranking
+  question: Which five telecom service areas had the most wireless subscribers at the end of September 2026?
+  expected: answer
+  kind: ranking
+  unit: subscribers
+  caveats: [service_area]
+  gold_sql: |
+    select service_area, value from fct_lsa_metric
+    where period_label = '2026-09'
+    order by value desc limit 5
+
+- id: D019
+  type: ranking
+  question: Which state has the largest projected population in 2036?
+  expected: answer
+  kind: ranking
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'population' and period_label = '2036'
+    order by value desc limit 1
+
+- id: D020
+  type: ranking
+  question: Rank the five states or UTs with the most bank offices at end-March 2025.
+  expected: answer
+  kind: ranking
+  unit: offices
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'scb_offices' and period_label = '2025-03-31'
+    order by value desc limit 5
+
+- id: D021
+  type: ranking
+  question: Which five states or UTs had the highest per capita NSDP at constant prices in 2022-23?
+  expected: answer
+  kind: ranking
+  unit: ₹
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'per_capita_nsdp_constant' and period_label = '2022-23'
+    order by value desc limit 5
+
+- id: D022
+  type: ranking
+  question: >-
+    Among the eight north-eastern states (Arunachal Pradesh, Assam, Manipur, Meghalaya,
+    Mizoram, Nagaland, Sikkim, Tripura), which had the most bank credit at end-March 2025?
+  expected: answer
+  kind: ranking
+  unit: ₹ crore
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'scb_credit' and period_label = '2025-03-31'
+      and state_name in ('Arunachal Pradesh', 'Assam', 'Manipur', 'Meghalaya', 'Mizoram',
+                         'Nagaland', 'Sikkim', 'Tripura')
+    order by value desc limit 1
+
+- id: D023
+  type: ranking
+  question: Which three states or UTs had the smallest GSDP at current prices in 2022-23?
+  expected: answer
+  kind: ranking
+  unit: ₹ crore
+  gold_sql: |
+    select state_name, value from fct_state_metric
+    where metric_id = 'gsdp_current' and period_label = '2022-23'
+    order by value asc limit 3
+
+# ---------------------------------------------------------------- change over time (13)
+- id: D024
+  type: change_over_time
+  question: By what percentage did Karnataka's total GST collection change between August 2025 and August 2026?
+  expected: answer
+  kind: number
+  unit: per cent
+  caveats: [provisional]
+  gold_sql: |
+    select (b.value - a.value) / a.value * 100 as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'gst_total' and a.state_name = 'Karnataka' and a.period_label = '2025-08'
+      and b.metric_id = 'gst_total' and b.state_name = 'Karnataka' and b.period_label = '2026-08'
+
+- id: D025
+  type: change_over_time
+  question: What was the compound annual growth rate of Bihar's GSDP at constant prices from 2014-15 to 2023-24?
+  expected: answer
+  kind: number
+  unit: per cent a year
+  gold_sql: |
+    select (power(b.value / a.value, 1.0 / 9) - 1) * 100 as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'gsdp_constant' and a.state_name = 'Bihar' and a.period_label = '2014-15'
+      and b.metric_id = 'gsdp_constant' and b.state_name = 'Bihar' and b.period_label = '2023-24'
+
+- id: D026
+  type: change_over_time
+  question: How much did bank deposits in Kerala grow, in ₹ crore, between end-March 2015 and end-March 2025?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  gold_sql: |
+    select b.value - a.value as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'scb_deposits' and a.state_name = 'Kerala' and a.period_label = '2015-03-31'
+      and b.metric_id = 'scb_deposits' and b.state_name = 'Kerala' and b.period_label = '2025-03-31'
+
+- id: D027
+  type: change_over_time
+  question: By how many did bank offices in Uttar Pradesh increase between end-March 2015 and end-March 2025?
+  expected: answer
+  kind: number
+  unit: offices
+  gold_sql: |
+    select b.value - a.value as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'scb_offices' and a.state_name = 'Uttar Pradesh'
+      and a.period_label = '2015-03-31'
+      and b.metric_id = 'scb_offices' and b.state_name = 'Uttar Pradesh'
+      and b.period_label = '2025-03-31'
+
+- id: D028
+  type: change_over_time
+  question: By what percentage is Bihar's population projected to grow between 2011 and 2036?
+  expected: answer
+  kind: number
+  unit: per cent
+  caveats: [projection]
+  gold_sql: |
+    select (b.value - a.value) / a.value * 100 as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'population' and a.state_name = 'Bihar' and a.period_label = '2011'
+      and b.metric_id = 'population' and b.state_name = 'Bihar' and b.period_label = '2036'
+
+- id: D029
+  type: change_over_time
+  question: How many wireless subscribers did the Delhi service area add between August and September 2026?
+  expected: answer
+  kind: number
+  unit: subscribers
+  caveats: [service_area]
+  gold_sql: |
+    select b.value - a.value as value
+    from fct_lsa_metric a, fct_lsa_metric b
+    where a.service_area = 'Delhi' and a.period_label = '2026-08'
+      and b.service_area = 'Delhi' and b.period_label = '2026-09'
+
+- id: D030
+  type: change_over_time
+  question: What was the year-on-year growth in Maharashtra's GSDP at current prices in 2023-24?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select (b.value - a.value) / a.value * 100 as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'gsdp_current' and a.state_name = 'Maharashtra'
+      and a.period_label = '2022-23'
+      and b.metric_id = 'gsdp_current' and b.state_name = 'Maharashtra'
+      and b.period_label = '2023-24'
+
+- id: D031
+  type: change_over_time
+  question: By what percentage did Tamil Nadu's per capita NSDP at constant prices change between 2019-20 and 2020-21?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select (b.value - a.value) / a.value * 100 as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'per_capita_nsdp_constant' and a.state_name = 'Tamil Nadu'
+      and a.period_label = '2019-20'
+      and b.metric_id = 'per_capita_nsdp_constant' and b.state_name = 'Tamil Nadu'
+      and b.period_label = '2020-21'
+
+- id: D032
+  type: change_over_time
+  question: By what percentage did India's total bank credit grow between end-March 2020 and end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select (b.value - a.value) / a.value * 100 as value
+    from fct_national_metric a, fct_national_metric b
+    where a.metric_id = 'scb_credit' and a.period_label = '2020-03-31'
+      and b.metric_id = 'scb_credit' and b.period_label = '2025-03-31'
+
+- id: D033
+  type: change_over_time
+  question: By what percentage did Uttar Pradesh's total GST collection change from 2023-24 to 2024-25 (financial years)?
+  expected: answer
+  kind: number
+  unit: per cent
+  caveats: [provisional]
+  gold_sql: |
+    with fy as (
+      select sum(case when period_start >= date '2023-04-01' and period_start < date '2024-04-01'
+                      then value end) as a,
+             sum(case when period_start >= date '2024-04-01' and period_start < date '2025-04-01'
+                      then value end) as b
+      from fct_state_metric
+      where metric_id = 'gst_total' and state_name = 'Uttar Pradesh'
+    )
+    select (b - a) / a * 100 as value from fy
+
+- id: D034
+  type: change_over_time
+  question: By how many percentage points did Kerala's share of India's bank deposits change between end-March 2015 and end-March 2025?
+  expected: answer
+  kind: number
+  unit: percentage points
+  gold_sql: |
+    with share as (
+      select s.period_label, s.value / n.value * 100 as pct
+      from fct_state_metric s
+      join fct_national_metric n on n.metric_id = s.metric_id and n.period_label = s.period_label
+      where s.metric_id = 'scb_deposits' and s.state_name = 'Kerala'
+        and s.period_label in ('2015-03-31', '2025-03-31')
+    )
+    select max(case when period_label = '2025-03-31' then pct end)
+         - max(case when period_label = '2015-03-31' then pct end) as value
+    from share
+
+- id: D035
+  type: change_over_time
+  question: What is the projected change in Kerala's population between 2021 and 2036, in persons?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select b.value - a.value as value
+    from fct_state_metric a, fct_state_metric b
+    where a.metric_id = 'population' and a.state_name = 'Kerala' and a.period_label = '2021'
+      and b.metric_id = 'population' and b.state_name = 'Kerala' and b.period_label = '2036'
+
+- id: D036
+  type: change_over_time
+  question: What was the compound annual growth rate of Telangana's total GST collections from 2018-19 to 2025-26 (financial years)?
+  expected: answer
+  kind: number
+  unit: per cent a year
+  caveats: [provisional]
+  gold_sql: |
+    with fy as (
+      select sum(case when period_start >= date '2018-04-01' and period_start < date '2019-04-01'
+                      then value end) as a,
+             sum(case when period_start >= date '2025-04-01' and period_start < date '2026-04-01'
+                      then value end) as b
+      from fct_state_metric
+      where metric_id = 'gst_total' and state_name = 'Telangana'
+    )
+    select (power(b / a, 1.0 / 7) - 1) * 100 as value from fy
+
+# ---------------------------------------------------------------- scaled comparisons (10)
+- id: D037
+  type: scaled_comparison
+  question: What was the credit-deposit ratio of scheduled commercial banks in Tamil Nadu at end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select c.value / d.value * 100 as value
+    from fct_state_metric c, fct_state_metric d
+    where c.metric_id = 'scb_credit' and c.state_name = 'Tamil Nadu' and c.period_label = '2025-03-31'
+      and d.metric_id = 'scb_deposits' and d.state_name = 'Tamil Nadu'
+      and d.period_label = '2025-03-31'
+
+- id: D038
+  type: scaled_comparison
+  question: Which five states or UTs had the highest credit-deposit ratio at end-March 2025?
+  expected: answer
+  kind: ranking
+  unit: per cent
+  gold_sql: |
+    select c.state_name, c.value / d.value * 100 as value
+    from fct_state_metric c
+    join fct_state_metric d
+      on d.state_code = c.state_code and d.period_label = c.period_label
+     and d.metric_id = 'scb_deposits'
+    where c.metric_id = 'scb_credit' and c.period_label = '2025-03-31'
+    order by value desc limit 5
+
+- id: D039
+  type: scaled_comparison
+  question: How many bank offices were there per lakh people in Bihar in 2025?
+  expected: answer
+  kind: number
+  unit: offices per lakh people
+  caveats: [projection]
+  notes: Offices at end-March 2025 divided by projected population on 1 July 2025.
+  gold_sql: |
+    select o.value / (p.value / 100000) as value
+    from fct_state_metric o, fct_state_metric p
+    where o.metric_id = 'scb_offices' and o.state_name = 'Bihar' and o.period_label = '2025-03-31'
+      and p.metric_id = 'population' and p.state_name = 'Bihar' and p.period_label = '2025'
+
+- id: D040
+  type: scaled_comparison
+  question: Which state or UT had the most bank deposits per person at end-March 2025?
+  expected: answer
+  kind: ranking
+  unit: ₹ per person
+  caveats: [projection]
+  notes: Deposits at end-March 2025 (₹ crore x 1 crore) over projected population for 2025.
+  gold_sql: |
+    select d.state_name, d.value * 10000000 / p.value as value
+    from fct_state_metric d
+    join fct_state_metric p
+      on p.state_code = d.state_code and p.metric_id = 'population' and p.period_label = '2025'
+    where d.metric_id = 'scb_deposits' and d.period_label = '2025-03-31'
+    order by value desc limit 1
+
+- id: D041
+  type: scaled_comparison
+  question: How much GST was collected per person in Kerala in 2025-26?
+  expected: answer
+  kind: number
+  unit: ₹ per person
+  caveats: [provisional, projection]
+  notes: April 2025 to March 2026 GST over projected population for 2025.
+  gold_sql: |
+    select sum(g.value) * 10000000 / max(p.value) as value
+    from fct_state_metric g, fct_state_metric p
+    where g.metric_id = 'gst_total' and g.state_name = 'Kerala'
+      and g.period_start >= date '2025-04-01' and g.period_start < date '2026-04-01'
+      and p.metric_id = 'population' and p.state_name = 'Kerala' and p.period_label = '2025'
+
+- id: D042
+  type: scaled_comparison
+  question: What share of India's bank deposits was held in Maharashtra at end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select s.value / n.value * 100 as value
+    from fct_state_metric s, fct_national_metric n
+    where s.metric_id = 'scb_deposits' and s.state_name = 'Maharashtra'
+      and s.period_label = '2025-03-31'
+      and n.metric_id = 'scb_deposits' and n.period_label = '2025-03-31'
+
+- id: D043
+  type: scaled_comparison
+  question: How many females per 1,000 males are projected in Haryana in 2026?
+  expected: answer
+  kind: number
+  unit: females per 1,000 males
+  caveats: [projection]
+  gold_sql: |
+    select f.value / m.value * 1000 as value
+    from fct_state_metric f, fct_state_metric m
+    where f.metric_id = 'population_female' and f.state_name = 'Haryana' and f.period_label = '2026'
+      and m.metric_id = 'population_male' and m.state_name = 'Haryana' and m.period_label = '2026'
+
+- id: D044
+  type: scaled_comparison
+  question: Which three states or UTs have the lowest projected sex ratio (females per 1,000 males) in 2026?
+  expected: answer
+  kind: ranking
+  unit: females per 1,000 males
+  caveats: [projection]
+  gold_sql: |
+    select f.state_name, f.value / m.value * 1000 as value
+    from fct_state_metric f
+    join fct_state_metric m
+      on m.state_code = f.state_code and m.period_label = f.period_label
+     and m.metric_id = 'population_male'
+    where f.metric_id = 'population_female' and f.period_label = '2026'
+    order by value asc limit 3
+
+- id: D045
+  type: scaled_comparison
+  question: What was India's credit-deposit ratio for scheduled commercial banks at end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select c.value / d.value * 100 as value
+    from fct_national_metric c, fct_national_metric d
+    where c.metric_id = 'scb_credit' and c.period_label = '2025-03-31'
+      and d.metric_id = 'scb_deposits' and d.period_label = '2025-03-31'
+
+- id: D046
+  type: scaled_comparison
+  question: Which five states or UTs had the fewest bank offices per lakh people in 2025?
+  expected: answer
+  kind: ranking
+  unit: offices per lakh people
+  caveats: [projection]
+  notes: Offices at end-March 2025 over projected population for 2025.
+  gold_sql: |
+    select o.state_name, o.value / (p.value / 100000) as value
+    from fct_state_metric o
+    join fct_state_metric p
+      on p.state_code = o.state_code and p.metric_id = 'population' and p.period_label = '2025'
+    where o.metric_id = 'scb_offices' and o.period_label = '2025-03-31'
+    order by value asc limit 5
+
+# ---------------------------------------------------------------- combining sources (10)
+- id: D047
+  type: combining_sources
+  question: What was Karnataka's total GST collection in 2023-24 as a percentage of its GSDP at current prices?
+  expected: answer
+  kind: number
+  unit: per cent of GSDP
+  caveats: [provisional]
+  gold_sql: |
+    select sum(g.value) / max(y.value) * 100 as value
+    from fct_state_metric g, fct_state_metric y
+    where g.metric_id = 'gst_total' and g.state_name = 'Karnataka'
+      and g.period_start >= date '2023-04-01' and g.period_start < date '2024-04-01'
+      and y.metric_id = 'gsdp_current' and y.state_name = 'Karnataka'
+      and y.period_label = '2023-24'
+
+- id: D048
+  type: combining_sources
+  question: Which five states or UTs had the highest GST collection relative to GSDP at current prices in 2023-24?
+  expected: answer
+  kind: ranking
+  unit: per cent of GSDP
+  caveats: [provisional]
+  gold_sql: |
+    with gst as (
+      select state_code, state_name, sum(value) as gst from fct_state_metric
+      where metric_id = 'gst_total'
+        and period_start >= date '2023-04-01' and period_start < date '2024-04-01'
+      group by state_code, state_name
+    )
+    select gst.state_name, gst.gst / y.value * 100 as value
+    from gst
+    join fct_state_metric y
+      on y.state_code = gst.state_code and y.metric_id = 'gsdp_current'
+     and y.period_label = '2023-24'
+    order by value desc limit 5
+
+- id: D049
+  type: combining_sources
+  question: What was bank credit as a percentage of GSDP at current prices in Gujarat, using credit at end-March 2024 and GSDP for 2023-24?
+  expected: answer
+  kind: number
+  unit: per cent of GSDP
+  gold_sql: |
+    select c.value / y.value * 100 as value
+    from fct_state_metric c, fct_state_metric y
+    where c.metric_id = 'scb_credit' and c.state_name = 'Gujarat' and c.period_label = '2024-03-31'
+      and y.metric_id = 'gsdp_current' and y.state_name = 'Gujarat' and y.period_label = '2023-24'
+
+- id: D050
+  type: combining_sources
+  question: What was GSDP per person at current prices in Uttar Pradesh in 2023-24, using the projected population for 2023?
+  expected: answer
+  kind: number
+  unit: ₹ per person
+  caveats: [projection]
+  gold_sql: |
+    select y.value * 10000000 / p.value as value
+    from fct_state_metric y, fct_state_metric p
+    where y.metric_id = 'gsdp_current' and y.state_name = 'Uttar Pradesh'
+      and y.period_label = '2023-24'
+      and p.metric_id = 'population' and p.state_name = 'Uttar Pradesh' and p.period_label = '2023'
+
+- id: D051
+  type: combining_sources
+  question: How many wireless subscribers per 100 people were there in the Kerala service area at the end of September 2026, using Kerala's projected 2026 population?
+  expected: answer
+  kind: number
+  unit: subscribers per 100 people
+  caveats: [service_area, projection]
+  gold_sql: |
+    select w.value / p.value * 100 as value
+    from fct_lsa_metric w, fct_state_metric p
+    where w.service_area = 'Kerala' and w.period_label = '2026-09'
+      and p.metric_id = 'population' and p.state_name = 'Kerala' and p.period_label = '2026'
+
+- id: D052
+  type: combining_sources
+  question: Which had more bank deposits per person at end-March 2025, Punjab or Haryana?
+  expected: answer
+  kind: ranking
+  unit: ₹ per person
+  caveats: [projection]
+  gold_sql: |
+    select d.state_name, d.value * 10000000 / p.value as value
+    from fct_state_metric d
+    join fct_state_metric p
+      on p.state_code = d.state_code and p.metric_id = 'population' and p.period_label = '2025'
+    where d.metric_id = 'scb_deposits' and d.period_label = '2025-03-31'
+      and d.state_name in ('Punjab', 'Haryana')
+    order by value desc
+
+- id: D053
+  type: combining_sources
+  question: What was Tamil Nadu's bank credit at end-March 2024 as a percentage of its GSDP at current prices in 2023-24?
+  expected: answer
+  kind: number
+  unit: per cent of GSDP
+  gold_sql: |
+    select c.value / y.value * 100 as value
+    from fct_state_metric c, fct_state_metric y
+    where c.metric_id = 'scb_credit' and c.state_name = 'Tamil Nadu'
+      and c.period_label = '2024-03-31'
+      and y.metric_id = 'gsdp_current' and y.state_name = 'Tamil Nadu'
+      and y.period_label = '2023-24'
+
+- id: D054
+  type: combining_sources
+  question: >-
+    Which of the five southern states (Andhra Pradesh, Karnataka, Kerala, Tamil Nadu,
+    Telangana) collected the most GST per person in 2025-26?
+  expected: answer
+  kind: ranking
+  unit: ₹ per person
+  caveats: [provisional, projection]
+  gold_sql: |
+    with gst as (
+      select state_code, state_name, sum(value) as gst from fct_state_metric
+      where metric_id = 'gst_total'
+        and period_start >= date '2025-04-01' and period_start < date '2026-04-01'
+        and state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Telangana')
+      group by state_code, state_name
+    )
+    select gst.state_name, gst.gst * 10000000 / p.value as value
+    from gst
+    join fct_state_metric p
+      on p.state_code = gst.state_code and p.metric_id = 'population' and p.period_label = '2025'
+    order by value desc limit 1
+
+- id: D055
+  type: combining_sources
+  question: Across all states and UTs together, how much GST was collected per person in 2025-26, using India's projected 2025 population?
+  expected: answer
+  kind: number
+  unit: ₹ per person
+  caveats: [provisional, projection]
+  gold_sql: |
+    select (select sum(value) from fct_state_metric
+            where metric_id = 'gst_total'
+              and period_start >= date '2025-04-01' and period_start < date '2026-04-01')
+           * 10000000
+           / (select value from fct_national_metric
+              where metric_id = 'population' and period_label = '2025') as value
+
+- id: D056
+  type: combining_sources
+  question: What were bank deposits per person in Delhi at end-March 2025, using Delhi's projected 2025 population?
+  expected: answer
+  kind: number
+  unit: ₹ per person
+  caveats: [projection]
+  gold_sql: |
+    select d.value * 10000000 / p.value as value
+    from fct_state_metric d, fct_state_metric p
+    where d.metric_id = 'scb_deposits' and d.state_name = 'Delhi' and d.period_label = '2025-03-31'
+      and p.metric_id = 'population' and p.state_name = 'Delhi' and p.period_label = '2025'
+
+# ---------------------------------------------------------------- trends (6)
+- id: D057
+  type: trend
+  question: Show Maharashtra's total GST collection for each financial year from 2018-19 to 2025-26.
+  expected: answer
+  kind: series
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    with m as (
+      select case when month(period_start) >= 4 then year(period_start)
+                  else year(period_start) - 1 end as fy_start, value
+      from fct_state_metric
+      where metric_id = 'gst_total' and state_name = 'Maharashtra'
+    )
+    select printf('%d-%02d', fy_start, (fy_start + 1) % 100) as period_label, sum(value) as value
+    from m where fy_start between 2018 and 2025
+    group by fy_start order by fy_start
+
+- id: D058
+  type: trend
+  question: Show India's projected population for every year from 2011 to 2036.
+  expected: answer
+  kind: series
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select period_label, value from fct_national_metric
+    where metric_id = 'population' order by period_start
+
+- id: D059
+  type: trend
+  question: Show Kerala's bank deposits at end-March for each year from 2015 to 2025.
+  expected: answer
+  kind: series
+  unit: ₹ crore
+  gold_sql: |
+    select period_label, value from fct_state_metric
+    where metric_id = 'scb_deposits' and state_name = 'Kerala'
+      and period_start between date '2015-03-31' and date '2025-03-31'
+    order by period_start
+
+- id: D060
+  type: trend
+  question: Show Uttar Pradesh's per capita NSDP at constant prices for each year from 2011-12 to 2023-24.
+  expected: answer
+  kind: series
+  unit: ₹
+  gold_sql: |
+    select period_label, value from fct_state_metric
+    where metric_id = 'per_capita_nsdp_constant' and state_name = 'Uttar Pradesh'
+      and period_start between date '2011-04-01' and date '2023-04-01'
+    order by period_start
+
+- id: D061
+  type: trend
+  question: Show Karnataka's monthly total GST collection from April 2025 to March 2026.
+  expected: answer
+  kind: series
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select period_label, value from fct_state_metric
+    where metric_id = 'gst_total' and state_name = 'Karnataka'
+      and period_start >= date '2025-04-01' and period_start < date '2026-04-01'
+    order by period_start
+
+- id: D062
+  type: trend
+  question: Show the number of bank offices in Bihar at end-March for each year from 2005 to 2025.
+  expected: answer
+  kind: series
+  unit: offices
+  gold_sql: |
+    select period_label, value from fct_state_metric
+    where metric_id = 'scb_offices' and state_name = 'Bihar'
+      and period_start between date '2005-03-31' and date '2025-03-31'
+    order by period_start
+
+# ---------------------------------------------------------------- groups of states (6)
+- id: D063
+  type: groups
+  question: >-
+    What was the combined total GST collection of the five southern states (Andhra Pradesh,
+    Karnataka, Kerala, Tamil Nadu, Telangana) in 2025-26?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [provisional]
+  gold_sql: |
+    select sum(value) as value from fct_state_metric
+    where metric_id = 'gst_total'
+      and period_start >= date '2025-04-01' and period_start < date '2026-04-01'
+      and state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Telangana')
+
+- id: D064
+  type: groups
+  question: >-
+    What is the combined projected population of the eight north-eastern states (Arunachal
+    Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, Tripura) in 2026?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  gold_sql: |
+    select sum(value) as value from fct_state_metric
+    where metric_id = 'population' and period_label = '2026'
+      and state_name in ('Arunachal Pradesh', 'Assam', 'Manipur', 'Meghalaya', 'Mizoram',
+                         'Nagaland', 'Sikkim', 'Tripura')
+
+- id: D065
+  type: groups
+  question: What was the credit-deposit ratio of the five southern states taken together at end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  caveats: [recompute]
+  notes: Total credit over total deposits, not the average of the five ratios.
+  gold_sql: |
+    select sum(case when metric_id = 'scb_credit' then value end)
+         / sum(case when metric_id = 'scb_deposits' then value end) * 100 as value
+    from fct_state_metric
+    where metric_id in ('scb_credit', 'scb_deposits') and period_label = '2025-03-31'
+      and state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Telangana')
+
+- id: D066
+  type: groups
+  question: What was the average per capita NSDP at current prices of the five southern states in 2022-23?
+  expected: answer
+  kind: number
+  unit: ₹
+  tolerance: 0.03
+  caveats: [recompute, projection]
+  notes: >-
+    Must be population-weighted (equivalent to total NSDP over total population), not a
+    simple average of five per-capita figures. Weighted with projected population for 2022;
+    RBI's own population base may differ slightly, hence the 3% tolerance.
+  gold_sql: |
+    select sum(n.value * p.value) / sum(p.value) as value
+    from fct_state_metric n
+    join fct_state_metric p
+      on p.state_code = n.state_code and p.metric_id = 'population' and p.period_label = '2022'
+    where n.metric_id = 'per_capita_nsdp_current' and n.period_label = '2022-23'
+      and n.state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Telangana')
+
+- id: D067
+  type: groups
+  question: What share of India's bank deposits did the five southern states hold at end-March 2025?
+  expected: answer
+  kind: number
+  unit: per cent
+  gold_sql: |
+    select sum(s.value) / max(n.value) * 100 as value
+    from fct_state_metric s, fct_national_metric n
+    where s.metric_id = 'scb_deposits' and s.period_label = '2025-03-31'
+      and s.state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Telangana')
+      and n.metric_id = 'scb_deposits' and n.period_label = '2025-03-31'
+
+- id: D068
+  type: groups
+  question: >-
+    At end-March 2025, how many more bank offices did Uttar Pradesh, Bihar, Madhya Pradesh and
+    Rajasthan have together than the five southern states together?
+  expected: answer
+  kind: number
+  unit: offices
+  notes: A negative answer means the southern states had more.
+  gold_sql: |
+    select sum(case when state_name in ('Uttar Pradesh', 'Bihar', 'Madhya Pradesh', 'Rajasthan')
+                    then value else 0 end)
+         - sum(case when state_name in ('Andhra Pradesh', 'Karnataka', 'Kerala', 'Tamil Nadu',
+                                        'Telangana') then value else 0 end) as value
+    from fct_state_metric
+    where metric_id = 'scb_offices' and period_label = '2025-03-31'
+
+# ---------------------------------------------------------------- matching traps (10)
+- id: D069
+  type: matching_trap
+  question: What was Orissa's GSDP at current prices in 2013-14?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  notes: Orissa is the former name of Odisha.
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gsdp_current' and state_name = 'Odisha' and period_label = '2013-14'
+
+- id: D070
+  type: matching_trap
+  question: What was Pondicherry's projected population in 2020?
+  expected: answer
+  kind: number
+  unit: persons
+  caveats: [projection]
+  notes: Pondicherry is the former name of Puducherry.
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'population' and state_name = 'Puducherry' and period_label = '2020'
+
+- id: D071
+  type: matching_trap
+  question: What was Uttaranchal's per capita NSDP at current prices in 2015-16?
+  expected: answer
+  kind: number
+  unit: ₹
+  notes: Uttaranchal is the former name of Uttarakhand.
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'per_capita_nsdp_current' and state_name = 'Uttarakhand'
+      and period_label = '2015-16'
+
+- id: D072
+  type: matching_trap
+  question: How much did Ladakh have in bank deposits at end-March 2015?
+  expected: refuse
+  reason: wrong_area
+  caveats: [ladakh_in_jk]
+  notes: Ladakh became a UT in October 2019; earlier bank figures are inside Jammu and Kashmir.
+
+- id: D073
+  type: matching_trap
+  question: What was Jammu and Kashmir's GSDP at current prices in 2016-17?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [ladakh_in_jk]
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gsdp_current' and state_name = 'Jammu and Kashmir'
+      and period_label = '2016-17'
+
+- id: D074
+  type: matching_trap
+  question: What were bank deposits in Daman and Diu at end-March 2023?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [dnh_merged]
+  notes: Since 2020 Daman and Diu is part of Dadra and Nagar Haveli and Daman and Diu; only the merged figure exists.
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'scb_deposits' and state_code = 38 and period_label = '2023-03-31'
+
+- id: D075
+  type: matching_trap
+  question: What was Telangana's GSDP at current prices in 2012-13?
+  expected: answer
+  kind: number
+  unit: ₹ crore
+  caveats: [state_formed]
+  notes: Telangana was formed in June 2014; the 2012-13 figure is for its present area, published later.
+  gold_sql: |
+    select value from fct_state_metric
+    where metric_id = 'gsdp_current' and state_name = 'Telangana' and period_label = '2012-13'
+
+- id: D076
+  type: matching_trap
+  question: What was Chhattisgarh's bank credit at end-March 1999?
+  expected: refuse
+  reason: out_of_range
+  caveats: [state_formed]
+  notes: The bank series starts at end-March 2004, and Chhattisgarh was formed in November 2000.
+
+- id: D077
+  type: matching_trap
+  question: How many wireless subscribers did Jharkhand have at the end of September 2026?
+  expected: refuse
+  reason: wrong_area
+  caveats: [service_area]
+  notes: TRAI's Bihar service area includes Jharkhand; there is no separate Jharkhand figure.
+
+- id: D078
+  type: matching_trap
+  question: What was Mumbai's GST collection in August 2026?
+  expected: refuse
+  reason: wrong_area
+  notes: GST is published by state; Mumbai is a city in Maharashtra.
+
+# ---------------------------------------------------------------- cannot be answered (13)
+- id: D079
+  type: cannot_answer
+  question: What was the value of UPI transactions in Karnataka in September 2026?
+  expected: refuse
+  reason: not_loaded
+
+- id: D080
+  type: cannot_answer
+  question: What was the unemployment rate in Kerala in 2023-24?
+  expected: refuse
+  reason: not_loaded
+
+- id: D081
+  type: cannot_answer
+  question: What was retail inflation in Tamil Nadu in March 2025?
+  expected: refuse
+  reason: not_loaded
+
+- id: D082
+  type: cannot_answer
+  question: How much GST did Bihar collect in March 2017?
+  expected: refuse
+  reason: out_of_range
+  notes: GST began in July 2017.
+
+- id: D083
+  type: cannot_answer
+  question: What will Kerala's GSDP be in 2030-31?
+  expected: refuse
+  reason: out_of_range
+  notes: The warehouse holds published figures, not forecasts.
+
+- id: D084
+  type: cannot_answer
+  question: What were bank deposits in Pune district at end-March 2025?
+  expected: refuse
+  reason: wrong_area
+
+- id: D085
+  type: cannot_answer
+  question: What is the literacy rate of Rajasthan?
+  expected: refuse
+  reason: not_loaded
+
+- id: D086
+  type: cannot_answer
+  question: How many factories are there in Gujarat?
+  expected: refuse
+  reason: not_loaded
+
+- id: D087
+  type: cannot_answer
+  question: What was Kerala's GST collection in October 2026?
+  expected: refuse
+  reason: not_published
+  notes: The latest month in the warehouse is August 2026.
+
+- id: D088
+  type: cannot_answer
+  question: What were bank deposits in Maharashtra at end-September 2024?
+  expected: refuse
+  reason: wrong_grain
+  notes: Bank figures are as at end-March only.
+
+- id: D089
+  type: cannot_answer
+  question: What is the projected population of Goa in 2040?
+  expected: refuse
+  reason: out_of_range
+  notes: Projections end in 2036.
+
+- id: D090
+  type: cannot_answer
+  question: How many broadband subscribers does Karnataka have?
+  expected: refuse
+  reason: not_loaded
+
+- id: D091
+  type: cannot_answer
+  question: What was Punjab's GSDP in 2005-06?
+  expected: refuse
+  reason: out_of_range
+  notes: The GSDP series in the warehouse starts in 2011-12 (base 2011-12).
+
+# ---------------------------------------------------------------- cause-and-effect traps (6)
+- id: D092
+  type: causal_trap
+  question: >-
+    Did more bank branches make states richer? Use bank offices per lakh people and per capita
+    NSDP at current prices for 2022-23.
+  expected: answer
+  kind: correlation
+  tolerance: 0.02
+  caveats: [causation, projection]
+  notes: Offices at end-March 2023 over projected 2022 population, against per capita NSDP 2022-23.
+  gold_sql: |
+    with x as (
+      select o.state_code, o.value / (p.value / 100000) as offices_per_lakh
+      from fct_state_metric o
+      join fct_state_metric p
+        on p.state_code = o.state_code and p.metric_id = 'population' and p.period_label = '2022'
+      where o.metric_id = 'scb_offices' and o.period_label = '2023-03-31'
+    )
+    select corr(x.offices_per_lakh, n.value) as r, count(*) as n
+    from x
+    join fct_state_metric n
+      on n.state_code = x.state_code and n.metric_id = 'per_capita_nsdp_current'
+     and n.period_label = '2022-23'
+
+- id: D093
+  type: causal_trap
+  question: Did GST cause Karnataka's GSDP to grow after 2017?
+  expected: refuse
+  reason: causal_claim
+  caveats: [causation]
+
+- id: D094
+  type: causal_trap
+  question: >-
+    Do states with higher GST collections per person have higher per capita income? Use
+    2023-24.
+  expected: answer
+  kind: correlation
+  tolerance: 0.02
+  caveats: [causation, provisional, projection]
+  notes: GST April 2023 to March 2024 over projected 2023 population, against per capita NSDP (current) 2023-24.
+  gold_sql: |
+    with gst as (
+      select g.state_code, sum(g.value) * 10000000 / max(p.value) as gst_per_person
+      from fct_state_metric g
+      join fct_state_metric p
+        on p.state_code = g.state_code and p.metric_id = 'population' and p.period_label = '2023'
+      where g.metric_id = 'gst_total'
+        and g.period_start >= date '2023-04-01' and g.period_start < date '2024-04-01'
+      group by g.state_code
+    )
+    select corr(gst.gst_per_person, n.value) as r, count(*) as n
+    from gst
+    join fct_state_metric n
+      on n.state_code = gst.state_code and n.metric_id = 'per_capita_nsdp_current'
+     and n.period_label = '2023-24'
+
+- id: D095
+  type: causal_trap
+  question: Did bank credit growth drive GSDP growth in Uttar Pradesh between 2015 and 2024?
+  expected: refuse
+  reason: causal_claim
+  caveats: [causation]
+
+- id: D096
+  type: causal_trap
+  question: Is population growth the reason Bihar's per capita income is low?
+  expected: refuse
+  reason: causal_claim
+  caveats: [causation]
+
+- id: D097
+  type: causal_trap
+  question: Does having more mobile subscribers increase GST collections?
+  expected: refuse
+  reason: causal_claim
+  caveats: [causation, service_area]
+
+# ---------------------------------------------------------------- unclear (3)
+- id: D098
+  type: unclear
+  question: How is Kerala doing?
+  expected: clarify
+
+- id: D099
+  type: unclear
+  question: Which state is the best?
+  expected: clarify
+
+- id: D100
+  type: unclear
+  question: Show me the growth.
+  expected: clarify

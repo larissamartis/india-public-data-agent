@@ -1,0 +1,36 @@
+# Caveats a correct answer must state, and the words the scorer looks for (any one matches,
+# case-insensitive). A sample of matches is checked by hand, as the design says.
+caveats:
+  provisional:
+    meaning: GST figures are provisional and counted by state of registration, not consumption.
+    keywords: [provisional, registration, registered]
+  projection:
+    meaning: Population figures are 2019 projections from Census 2011, not counts.
+    keywords: [projection, projected]
+  service_area:
+    meaning: TRAI reports by licensed service area, not by state.
+    keywords: [service area, LSA, licensed area, circle]
+  ladakh_in_jk:
+    meaning: RBI's Jammu and Kashmir figures include Ladakh before 2019-20.
+    keywords: [Ladakh]
+  dnh_merged:
+    meaning: From 2020 Dadra and Nagar Haveli and Daman and Diu are one UT.
+    keywords: [merged, Dadra and Nagar Haveli and Daman and Diu, combined UT]
+  state_formed:
+    meaning: The state did not exist for part of the period (Telangana from June 2014).
+    keywords: [formed, bifurcat, did not exist, created]
+  recompute:
+    meaning: A ratio for a group must be rebuilt from its parts, not averaged across states.
+    keywords: [weighted, rebuilt, recomputed, not a simple average, population-weighted]
+  causation:
+    meaning: The data shows association at most; it cannot show what caused what.
+    keywords: [correlation, causation, cause, association, does not prove, cannot show]
+
+# Why a question cannot be answered from the warehouse.
+refusal_reasons:
+  not_loaded: The dataset is not in the warehouse.
+  out_of_range: The period asked for is outside the data's range.
+  not_published: The period asked for has not been published yet.
+  wrong_area: The data is not published for that area (district, city, or a state inside a service area).
+  wrong_grain: The data exists only at another time grain (for example end-March only).
+  causal_claim: The question asks for a cause the data cannot show.
