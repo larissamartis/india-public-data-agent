@@ -65,6 +65,13 @@ def test_population_page_without_unit_line_still_reads_names():
     assert names == {"INDIA", "JAMMU & KASHMIR (UT)", "HIMACHAL PRADESH"}
 
 
+def test_population_wrapped_title_is_not_read_as_a_name():
+    words = table_page(ROWS)
+    words += [word("Territories*", 70, 22), word("(’000)", 130, 22)]  # odd quote mark
+    names = {r["name_as_printed"] for r in population.parse_table_page(words)}
+    assert names == {"INDIA", "JAMMU & KASHMIR (UT)", "HIMACHAL PRADESH"}
+
+
 def test_population_persons_must_equal_male_plus_female():
     bad = {2011: [1216147, 625942, 590205, 12309, 6504, 9999, 6884, 3492, 3392], 2012: ROWS[2012]}
     with pytest.raises(population.PopulationFormatError, match="is not male"):

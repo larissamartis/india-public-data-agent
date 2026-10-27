@@ -79,11 +79,12 @@ def _number(text: str) -> int | None:
 
 
 _MEASURE_WORDS = {"persons", "person", "male", "males", "females", "female"}
-_TITLE_WORDS = {"table", "projected", "territories", "territories*", "union", "('000)", "(‘000)"}
+# Compared on letters and digits only: the PDF uses several quote marks around '000.
+_TITLE_WORDS = {"table", "projected", "territories", "union", "000"}
 
 
 def _texts(line: list[dict]) -> set[str]:
-    return {w["text"].lower() for w in line}
+    return {re.sub(r"[^a-z0-9]", "", w["text"].lower()) for w in line}
 
 
 def _nearest(value: float, options: list[float]) -> int:
