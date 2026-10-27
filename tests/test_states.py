@@ -39,6 +39,7 @@ def test_normalise_name(raw, expected):
         ("J&K", 1),
         ("Pondicherry", 34),
         ("Uttaranchal", 5),
+        ("Andaman and Nicobar Island", 35),
         ("Dadra & Nagar Haveli and Daman & Diu", 38),
         ("Andaman & Nicobar Islands", 35),
         ("Telengana", 36),

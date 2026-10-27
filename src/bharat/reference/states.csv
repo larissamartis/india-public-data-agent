@@ -33,7 +33,7 @@ state_code,state_name,kind,valid_from,valid_to,aliases
 32,Kerala,state,,,
 33,Tamil Nadu,state,,,Tamilnadu
 34,Puducherry,ut,,,Pondicherry
-35,Andaman and Nicobar Islands,ut,,,A and N Islands|Andaman and Nicobar
+35,Andaman and Nicobar Islands,ut,,,A and N Islands|Andaman and Nicobar|Andaman and Nicobar Island
 36,Telangana,state,2014-06-02,,Telengana
 37,Ladakh,ut,2019-10-31,,
 38,Dadra and Nagar Haveli and Daman and Diu,ut,2020-01-26,,DNH and DD|DNHDD

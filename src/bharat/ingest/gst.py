@@ -44,6 +44,7 @@ NON_STATE_ROWS = {
     "grand total",
     "centre jurisdiction",
     "others",
+    "cbic",
 }
 _NAME_HEADERS = {"state", "state name", "state ut", "states ut", "name of the state", "state uts"}
 _CODE_HEADERS = {"state cd", "state code", "code", "state cd code"}
