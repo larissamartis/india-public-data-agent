@@ -14,6 +14,10 @@ on:
         description: Only preview the hand-downloaded files (rbi, npci, trai, nfhs, population)
         type: boolean
         default: false
+      pages:
+        description: "With inspect: PDF pages to show, such as 120-123 (blank lists the tables)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -39,7 +43,8 @@ jobs:
           MOSPI_EMAIL: ${{ secrets.MOSPI_EMAIL }}
           MOSPI_PASSWORD: ${{ secrets.MOSPI_PASSWORD }}
           INSPECT: ${{ inputs.inspect && '--inspect' || '' }}
-        run: uv run python -m bharat.ingest "$SOURCE" $INSPECT
+          PAGES: ${{ inputs.pages }}
+        run: uv run python -m bharat.ingest "$SOURCE" $INSPECT ${PAGES:+--pages "$PAGES"}
 
       - name: Keep bronze files
         if: always()

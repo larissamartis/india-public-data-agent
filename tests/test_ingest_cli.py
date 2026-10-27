@@ -32,7 +32,7 @@ def test_cli_reports_contract_failures(monkeypatch, capsys):
 
 def test_cli_previews_sources_without_a_parser(monkeypatch, capsys):
     monkeypatch.setattr(
-        cli, "_inspect", lambda source, out: ["npci.xlsx (10 bytes)\nState | Volume"]
+        cli, "_inspect", lambda source, out, pages: ["npci.xlsx (10 bytes)\nState | Volume"]
     )
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     assert cli.main(["npci"]) == 0

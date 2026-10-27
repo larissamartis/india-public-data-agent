@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import os
+import re
 from io import BytesIO, StringIO
 from pathlib import Path
 
@@ -25,6 +26,9 @@ RELEASE_URL = "https://github.com/{repo}/releases/download/raw-inputs/{name}"
 PREVIEW_ROWS = 15
 PREVIEW_WIDTH = 40
 PREVIEW_CHARS = 6000
+PDF_WIDTH = 110
+# GitHub shows at most 10 notices per step; keep one spare for the run summary.
+MAX_PARTS = 9
 
 
 class ManualFileError(RuntimeError):
@@ -112,16 +116,47 @@ def _csv_preview(content: bytes) -> list[str]:
     return _table_preview(csv.reader(StringIO(text)))
 
 
-def _pdf_preview(content: bytes) -> list[str]:
+_TABLE_TITLE = re.compile(r"^\s*(table|statement|annexure|annex)\s*[\w.()-]*\s*[:.\-–]", re.I)
+
+
+def page_numbers(spec: str, count: int) -> list[int]:
+    """'3,10-12' -> [3, 10, 11, 12] (1-based), refusing pages outside 1..count."""
+    pages: list[int] = []
+    for part in spec.replace(" ", "").split(","):
+        if not part:
+            continue
+        low, _, high = part.partition("-")
+        first, last = int(low), int(high or low)
+        if not 1 <= first <= last <= count:
+            raise ValueError(f"pages {part} are outside 1-{count}")
+        pages.extend(range(first, last + 1))
+    return pages
+
+
+def _line(text: str, width: int = PDF_WIDTH) -> str:
+    text = " ".join(text.split())
+    return text if len(text) <= width else text[: width - 1] + "…"
+
+
+def _pdf_preview(content: bytes, pages: str | None = None) -> list[str]:
+    """Without `pages`: a contents list of the pages that start a table. With: those pages."""
     import pdfplumber
 
-    lines = []
     with pdfplumber.open(BytesIO(content)) as pdf:
-        lines.append(f"[pdf: {len(pdf.pages)} pages]")
-        for number, page in enumerate(pdf.pages[:2], start=1):
-            lines.append(f"[page {number}]")
-            text_lines = [line for line in (page.extract_text() or "").splitlines() if line.strip()]
-            lines.extend(_short(line) for line in text_lines[: PREVIEW_ROWS * 2])
+        lines = [f"[pdf: {len(pdf.pages)} pages]"]
+        if pages:
+            for number in page_numbers(pages, len(pdf.pages)):
+                lines.append(f"[page {number}]")
+                text = pdf.pages[number - 1].extract_text() or ""
+                lines.extend(_line(row) for row in text.splitlines() if row.strip())
+            return lines
+        for number, page in enumerate(pdf.pages, start=1):
+            rows = [row for row in (page.extract_text() or "").splitlines() if row.strip()]
+            title = next((row for row in rows[:8] if _TABLE_TITLE.match(row)), None)
+            if title:
+                lines.append(f"p{number}: {_line(title)}")
+        if len(lines) == 1:
+            lines.append("no page starts with a table title; preview chosen pages instead")
     return lines
 
 
@@ -133,16 +168,28 @@ PREVIEWERS = {
 }
 
 
-def inspect_file(path: Path) -> str:
-    """A short, plain-text look at the start of a file, for writing its parser."""
+def inspect_file(path: Path, pages: str | None = None) -> list[str]:
+    """A plain-text look inside a file, split into notice-sized parts.
+
+    Spreadsheets and CSVs show their first rows; PDFs show which pages hold tables, or the
+    text of chosen `pages` such as '120-123'.
+    """
     content = path.read_bytes()
     previewer = PREVIEWERS.get(path.suffix.lower())
     header = f"{path.name} ({len(content):,} bytes)"
     if previewer is None:
-        return f"{header}: no preview for this file type"
+        return [f"{header}: no preview for this file type"]
     try:
-        lines = previewer(content)
+        lines = previewer(content, pages) if previewer is _pdf_preview else previewer(content)
     except Exception as error:  # a preview must never stop the other files being shown
-        return f"{header}: could not read ({type(error).__name__}: {error})"
-    text = "\n".join([header, *lines])
-    return text if len(text) <= PREVIEW_CHARS else text[: PREVIEW_CHARS - 1] + "…"
+        return [f"{header}: could not read ({type(error).__name__}: {error})"]
+    parts, current = [], header
+    for line in lines:
+        if len(current) + len(line) + 1 > PREVIEW_CHARS:
+            parts.append(current)
+            current = f"{header}, continued"
+        current += "\n" + line
+    parts.append(current)
+    if len(parts) > MAX_PARTS:
+        parts = [*parts[: MAX_PARTS - 1], f"{header}: {len(parts) - MAX_PARTS + 1} more parts cut"]
+    return parts

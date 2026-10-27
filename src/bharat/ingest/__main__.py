@@ -31,10 +31,10 @@ SOURCES = {
 MANUAL_SOURCES = ("rbi", "npci", "trai", "nfhs", "population")
 
 
-def _inspect(source: str, out: Path) -> list[str]:
+def _inspect(source: str, out: Path, pages: str | None = None) -> list[str]:
     entries = manual.entries_for(source)
     paths = manual.fetch_files(entries, out / "raw" / "manual" / source)
-    return [manual.inspect_file(path) for path in paths]
+    return [part for path in paths for part in manual.inspect_file(path, pages)]
 
 
 def _annotate(level: str, title: str, message: str) -> None:
@@ -64,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("source", choices=sorted({*SOURCES, *MANUAL_SOURCES}))
     parser.add_argument("--out", type=Path, default=Path("data"))
     parser.add_argument("--inspect", action="store_true", help="preview hand-downloaded files")
+    parser.add_argument("--pages", help="with --inspect: PDF pages to show, such as 120-123")
     args = parser.parse_args(argv)
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
@@ -74,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args.inspect:
             print(f"{args.source} has no parser yet; previewing its files instead")
         try:
-            previews = _inspect(args.source, args.out)
+            previews = _inspect(args.source, args.out, args.pages)
         except manual.ManualFileError as error:
             _annotate("error", f"{args.source} files", str(error))
             print(error, file=sys.stderr)

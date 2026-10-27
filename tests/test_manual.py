@@ -144,13 +144,13 @@ def test_fetch_files_names_a_missing_upload(tmp_path):
 def test_inspect_shows_the_first_rows(tmp_path):
     path = tmp_path / "t21.xlsx"
     path.write_bytes(GSDP)
-    text = manual.inspect_file(path)
+    [text] = manual.inspect_file(path)
     assert "Sr. No. | State | 2011-12 | 2012-13 | 2013-14 (P)" in text
     assert "[sheet T(1):" in text
     (tmp_path / "x.csv").write_text("State,Volume\nGoa,12\n", encoding="utf-8")
-    assert "State | Volume" in manual.inspect_file(tmp_path / "x.csv")
+    assert "State | Volume" in manual.inspect_file(tmp_path / "x.csv")[0]
     (tmp_path / "bad.pdf").write_bytes(b"not a pdf")
-    assert "could not read" in manual.inspect_file(tmp_path / "bad.pdf")
+    assert "could not read" in manual.inspect_file(tmp_path / "bad.pdf")[0]
 
 
 def test_rbi_run_writes_bronze(tmp_path, monkeypatch):
@@ -200,3 +200,20 @@ def test_a_period_on_two_sheets_is_refused():
     sheet = [["State", "2011-12", "2012-13"], ["Goa", 1, 2]]
     with pytest.raises(rbi.RbiFormatError, match="more than once"):
         rbi.parse_state_by_period(workbook(sheet, sheet))
+
+
+def test_page_numbers():
+    assert manual.page_numbers("3, 10-12", 20) == [3, 10, 11, 12]
+    with pytest.raises(ValueError, match="outside"):
+        manual.page_numbers("19-21", 20)
+
+
+def test_long_previews_split_into_notice_sized_parts(tmp_path, monkeypatch):
+    monkeypatch.setattr(manual, "PREVIEW_CHARS", 120)
+    rows = "\n".join(f"Row {i}," + "x" * 30 for i in range(40))
+    (tmp_path / "big.csv").write_text("State,Value\n" + rows, encoding="utf-8")
+    parts = manual.inspect_file(tmp_path / "big.csv")
+    assert all(len(part) <= manual.PREVIEW_CHARS for part in parts)
+    assert len(parts) > 1
+    assert parts[0].startswith("big.csv")
+    assert parts[1].startswith("big.csv (") and "continued" in parts[1]
