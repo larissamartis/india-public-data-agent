@@ -65,7 +65,8 @@ def trai(path: Path) -> None:
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
             text = page.extract_text() or ""
-            if "Annexure-II" not in text or "Wireless (Mobile)" not in text:
+            flat = " ".join(text.split())
+            if "Annexure-II " not in flat + " " or "Wireless (Mobile) Subscriber Base" not in flat:
                 continue
             lines = text.splitlines()
             out = [ln for ln in lines[:6]]

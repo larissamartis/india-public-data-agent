@@ -290,6 +290,9 @@ questions:
   kind: ranking
   unit: females per 1,000 males
   caveats: [projection]
+  notes: >-
+    Checked against PDF page 90: Odisha 20,989 thousand males, 23,975 thousand females.
+    Far from Census 2011 (979) but it is what the report prints.
   gold_sql: |
     select f.state_name, f.value / m.value * 1000 as value
     from fct_state_metric f

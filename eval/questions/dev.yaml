@@ -557,6 +557,9 @@ questions:
   kind: ranking
   unit: females per 1,000 males
   caveats: [projection]
+  notes: >-
+    Checked against PDF page 96: Daman and Diu 555 thousand males, 179 thousand females.
+    The projection is far below Census 2011 (618) but is what the report prints.
   gold_sql: |
     select f.state_name, f.value / m.value * 1000 as value
     from fct_state_metric f
