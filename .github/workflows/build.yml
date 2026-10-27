@@ -1,0 +1,58 @@
+name: Build
+
+# Click-to-run: load every source that can be loaded, then build and test the warehouse.
+# MoSPI is skipped until its login secrets exist. The serving database is kept as a
+# downloadable artifact for 14 days; nothing is committed yet.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --group warehouse
+
+      - name: Load sources
+        env:
+          MOSPI_EMAIL: ${{ secrets.MOSPI_EMAIL }}
+          MOSPI_PASSWORD: ${{ secrets.MOSPI_PASSWORD }}
+        run: |
+          sources="gst rbi population trai"
+          if [ -n "$MOSPI_EMAIL" ]; then sources="$sources mospi-cpi mospi-plfs mospi-asi"; fi
+          for source in $sources; do
+            echo "::group::$source"
+            uv run python -m bharat.ingest "$source"
+            echo "::endgroup::"
+          done
+
+      - name: Prepare warehouse inputs
+        run: uv run python -m bharat.warehouse prepare
+
+      - name: dbt build
+        run: uv run dbt build --project-dir dbt --profiles-dir dbt
+
+      - name: Report dbt results
+        if: always()
+        run: uv run python -m bharat.warehouse report
+
+      - name: Summary
+        run: uv run python -m bharat.warehouse summary
+
+      - name: Keep serving database
+        uses: actions/upload-artifact@v4
+        with:
+          name: serving-duckdb
+          path: data/serving/serving.duckdb
+          retention-days: 14

@@ -1,0 +1,8 @@
+# Paths are relative to the folder dbt is run from (the repo root).
+india_public_data:
+  target: serving
+  outputs:
+    serving:
+      type: duckdb
+      path: "{{ env_var('SERVING_DB', 'data/serving/serving.duckdb') }}"
+      threads: 4

@@ -1,0 +1,5 @@
+source_id,name,publisher,url,access
+gst,State-wise GST collections,GST statistics page (gst.gov.in),https://www.gst.gov.in/download/gststatistics,Scripted download of yearly Excel files
+rbi,Handbook of Statistics on Indian States 2024-25 (released 11 Dec 2025),Reserve Bank of India,https://www.rbi.org.in/Scripts/AnnualPublications.aspx?head=Handbook%20of%20Statistics%20on%20Indian%20States,Manual Excel download; fingerprints in data/manifest.yml
+population,Population Projections for India and States 2011-2036 (Nov 2019),"Technical Group on Population Projections, National Commission on Population, MoHFW",https://nhm.gov.in/New_Updates_2018/Report_Population_Projection_2019.pdf,Manual PDF download (Table 11)
+trai,Telecom Subscription Data (monthly press release),Telecom Regulatory Authority of India,https://www.trai.gov.in/release-publication/reports/telecom-subscriptions-reports,Manual PDF download (Annexure II)

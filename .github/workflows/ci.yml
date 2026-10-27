@@ -29,3 +29,17 @@ jobs:
 
       - name: Test
         run: uv run pytest
+
+      # The whole warehouse, built and tested on a tiny made-up bronze folder.
+      - name: Warehouse on fixture data
+        env:
+          BRONZE_DIR: data/fixture-bronze
+          SERVING_DB: data/fixture-serving/serving.duckdb
+        run: |
+          uv run python -m bharat.warehouse fixtures --bronze "$BRONZE_DIR"
+          uv run python -m bharat.warehouse prepare --bronze "$BRONZE_DIR" --database "$SERVING_DB"
+          uv run dbt build --project-dir dbt --profiles-dir dbt
+
+      - name: Report dbt results
+        if: always()
+        run: uv run python -m bharat.warehouse report --run-results dbt/target/run_results.json

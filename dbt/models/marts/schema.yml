@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: fct_state_metric
+    description: One row per metric, state or UT, and period.
+    columns:
+      - name: row_key
+        tests: [unique, not_null]
+      - name: state_code
+        description: LGD code. Null means a printed name was not matched (should never happen).
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_state'), field: state_code}
+      - name: metric_id
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_metric'), field: metric_id}
+      - name: value
+        tests: [not_null]
+      - name: period_start
+        tests: [not_null]
+      - name: period_type
+        tests:
+          - accepted_values: {values: [month, fy, end_march, year_jul1]}
+
+  - name: fct_national_metric
+    columns:
+      - name: row_key
+        tests: [unique, not_null]
+      - name: metric_id
+        tests:
+          - relationships: {to: ref('dim_metric'), field: metric_id}
+
+  - name: fct_lsa_metric
+    columns:
+      - name: row_key
+        tests: [unique, not_null]
+      - name: service_area
+        tests: [not_null]
+
+  - name: dim_state
+    columns:
+      - name: state_code
+        tests: [unique, not_null]
+
+  - name: dim_metric
+    columns:
+      - name: metric_id
+        tests: [unique, not_null]
+      - name: combine_rule
+        tests:
+          - accepted_values: {values: [sum, recompute]}
+      - name: source_id
+        tests:
+          - relationships: {to: ref('dim_source'), field: source_id}
+
+  - name: dim_source
+    columns:
+      - name: source_id
+        tests: [unique, not_null]

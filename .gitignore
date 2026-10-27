@@ -12,6 +12,8 @@ dist/
 data/raw/
 data/bronze/
 data/tmp/
+data/fixture-bronze/
+data/fixture-serving/
 *.duckdb
 *.duckdb.wal
 !serving/*.duckdb

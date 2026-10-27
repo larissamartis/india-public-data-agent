@@ -1,0 +1,15 @@
+version: 2
+
+# Bronze Parquet written by `python -m bharat.ingest` (each file passed its contract) and the
+# two reference files written by `python -m bharat.warehouse prepare`.
+sources:
+  - name: bronze
+    meta:
+      external_location: "{{ env_var('BRONZE_DIR', 'data/bronze') }}/{name}.parquet"
+    tables:
+      - name: gst_state_monthly
+      - name: rbi_state_annual
+      - name: population_projection
+      - name: trai_wireless_lsa
+      - name: ref_state
+      - name: ref_state_name

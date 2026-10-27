@@ -1,0 +1,21 @@
+name: india_public_data
+version: "0.1.0"
+config-version: 2
+profile: india_public_data
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target"]
+
+# Staging and harmonised models are ephemeral (folded into the marts), so the serving
+# database holds only the marts and never points back at bronze files.
+models:
+  india_public_data:
+    staging:
+      +materialized: ephemeral
+    harmonised:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
