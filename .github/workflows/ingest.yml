@@ -8,8 +8,12 @@ on:
       source:
         description: Source to load
         type: choice
-        options: [gst, mospi-cpi, mospi-plfs, mospi-asi]
+        options: [gst, mospi-cpi, mospi-plfs, mospi-asi, rbi, npci, trai, nfhs, population]
         default: gst
+      inspect:
+        description: Only preview the hand-downloaded files (rbi, npci, trai, nfhs, population)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,7 +38,8 @@ jobs:
           SOURCE: ${{ inputs.source }}
           MOSPI_EMAIL: ${{ secrets.MOSPI_EMAIL }}
           MOSPI_PASSWORD: ${{ secrets.MOSPI_PASSWORD }}
-        run: uv run python -m bharat.ingest "$SOURCE"
+          INSPECT: ${{ inputs.inspect && '--inspect' || '' }}
+        run: uv run python -m bharat.ingest "$SOURCE" $INSPECT
 
       - name: Keep bronze files
         if: always()

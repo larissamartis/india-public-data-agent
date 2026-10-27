@@ -28,3 +28,21 @@ def test_cli_reports_contract_failures(monkeypatch, capsys):
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     assert cli.main(["gst"]) == 1
     assert "::error title=gst contract::" in capsys.readouterr().out
+
+
+def test_cli_previews_sources_without_a_parser(monkeypatch, capsys):
+    monkeypatch.setattr(
+        cli, "_inspect", lambda source, out: ["npci.xlsx (10 bytes)\nState | Volume"]
+    )
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert cli.main(["npci"]) == 0
+    out = capsys.readouterr().out
+    assert "no parser yet" in out
+    assert "::notice title=npci preview::npci.xlsx (10 bytes)%0AState | Volume" in out
+
+
+def test_cli_refuses_inspect_for_scripted_sources(capsys):
+    import pytest
+
+    with pytest.raises(SystemExit):
+        cli.main(["gst", "--inspect"])

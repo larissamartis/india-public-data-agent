@@ -25,6 +25,9 @@ class ManifestFile(BaseModel):
     original_url: str
     downloaded_on: date
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    # What the file measures (for example `gsdp_current`) and its unit as printed in the table.
+    dataset: str | None = None
+    unit: str | None = None
     notes: str | None = None
 
 

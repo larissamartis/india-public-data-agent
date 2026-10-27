@@ -1,0 +1,13 @@
+# RBI Handbook of Statistics on Indian States: one row per table (dataset), state and year.
+# Units differ by table (₹ lakh, ₹ crore, ₹, counts, per cent), so the unit travels with each
+# row and only negative values are rejected; growth tables are not loaded here.
+source: rbi
+table: rbi_state_annual
+key: [dataset, state_name, fy]
+columns:
+  dataset: {type: VARCHAR, not_null: true}
+  unit: {type: VARCHAR, not_null: true}
+  fy: {type: VARCHAR, not_null: true}
+  state_name: {type: VARCHAR, not_null: true, state_name: true, allow_names: [All India]}
+  value: {type: DOUBLE, not_null: true, min: 0}
+row_count_tolerance: 0.2
