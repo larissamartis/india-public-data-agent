@@ -78,6 +78,14 @@ def _number(text: str) -> int | None:
     return int(digits) if digits.isdigit() else None
 
 
+_MEASURE_WORDS = {"persons", "person", "male", "males", "females", "female"}
+_TITLE_WORDS = {"table", "projected", "territories", "territories*", "union", "('000)", "(‘000)"}
+
+
+def _texts(line: list[dict]) -> set[str]:
+    return {w["text"].lower() for w in line}
+
+
 def _nearest(value: float, options: list[float]) -> int:
     return min(range(len(options)), key=lambda i: abs(options[i] - value))
 
@@ -98,11 +106,16 @@ def parse_table_page(words: list[dict]) -> list[dict]:
     groups = len(col_x) // 3
     group_x = [sum(col_x[3 * g : 3 * g + 3]) / 3 for g in range(groups)]
 
-    persons = next((ln for ln in lines if any(w["text"].lower() == "persons" for w in ln)), None)
-    unit = [ln for ln in lines if any("000)" in w["text"] for w in ln)]
-    if persons is None or not unit:
-        raise PopulationFormatError("no 'Persons' header or ('000) unit line")
-    top, bottom = unit[-1][0]["top"], persons[0]["top"]
+    # The Persons / Male / Females header row, and the last title line above it; area names
+    # sit between the two. Titles wrap differently from page to page.
+    persons = next((ln for ln in lines if _texts(ln) & _MEASURE_WORDS), None)
+    if persons is None:
+        raise PopulationFormatError("no 'Persons / Male / Females' header row")
+    bottom = persons[0]["top"]
+    titles = [ln for ln in lines if ln[0]["top"] < bottom and _texts(ln) & _TITLE_WORDS]
+    if not titles:
+        raise PopulationFormatError("no title line above the 'Persons' header")
+    top = titles[-1][0]["top"]
     names: list[list[str]] = [[] for _ in range(groups)]
     for line in lines:
         if top < line[0]["top"] < bottom:
@@ -202,7 +215,11 @@ def parse_report(pages: list[tuple[str, list[dict]]]) -> list[dict]:
         try:
             records.extend(parse_table_page(words))
         except PopulationFormatError as error:
-            raise PopulationFormatError(f"page {number}: {error}") from error
+            # Show the page's opening lines so a layout change can be fixed without a rerun.
+            opening = " | ".join(line.strip() for line in text.splitlines()[:8])
+            raise PopulationFormatError(
+                f"page {number}: {error}. Page starts: {opening}"
+            ) from error
     if not table_pages:
         raise PopulationFormatError("no Table 11 pages found")
     seen: set[tuple[str, int]] = set()

@@ -59,6 +59,12 @@ def test_population_page_is_read_by_position():
     assert {r["name_as_printed"] for r in records} >= {"JAMMU & KASHMIR (UT)"}
 
 
+def test_population_page_without_unit_line_still_reads_names():
+    words = [w for w in table_page(ROWS) if w["text"] != "('000)"]
+    names = {r["name_as_printed"] for r in population.parse_table_page(words)}
+    assert names == {"INDIA", "JAMMU & KASHMIR (UT)", "HIMACHAL PRADESH"}
+
+
 def test_population_persons_must_equal_male_plus_female():
     bad = {2011: [1216147, 625942, 590205, 12309, 6504, 9999, 6884, 3492, 3392], 2012: ROWS[2012]}
     with pytest.raises(population.PopulationFormatError, match="is not male"):
