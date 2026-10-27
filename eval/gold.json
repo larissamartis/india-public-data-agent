@@ -1,0 +1,2210 @@
+{
+ "serving_sha256": "043d9976bc595ef1f695b30d6212a3b8a11581a81fc86c2d73ba72e70ee1cdc9",
+ "built_at": "2026-10-27 11:02:03.932923",
+ "built_from_commit": "d556634d697870a74c0cae2bfad002004e70a9b2",
+ "questions": {
+  "D001": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     3077.71
+    ]
+   ]
+  },
+  "D002": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     3834.5
+    ]
+   ]
+  },
+  "D003": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     4055847.23
+    ]
+   ]
+  },
+  "D004": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     62201.0
+    ]
+   ]
+  },
+  "D005": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     19436.0
+    ]
+   ]
+  },
+  "D006": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     2071013.0
+    ]
+   ]
+  },
+  "D007": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1238986.0
+    ]
+   ]
+  },
+  "D008": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     83879000.0
+    ]
+   ]
+  },
+  "D009": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     19024000.0
+    ]
+   ]
+  },
+  "D010": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     43284180.0
+    ]
+   ]
+  },
+  "D011": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     18786865.0
+    ]
+   ]
+  },
+  "D012": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1415156000.0
+    ]
+   ]
+  },
+  "D013": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     142.41
+    ]
+   ]
+  },
+  "D014": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Maharashtra",
+     361777.64999999997
+    ],
+    [
+     "Karnataka",
+     158217.3
+    ],
+    [
+     "Gujarat",
+     135415.19
+    ],
+    [
+     "Tamil Nadu",
+     130248.08
+    ],
+    [
+     "Haryana",
+     121079.98000000001
+    ]
+   ]
+  },
+  "D015": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Maharashtra",
+     3641542.9
+    ],
+    [
+     "Tamil Nadu",
+     2372469.27
+    ],
+    [
+     "Karnataka",
+     2319696.23
+    ],
+    [
+     "Uttar Pradesh",
+     2295763.18
+    ],
+    [
+     "Gujarat",
+     2203418.97
+    ]
+   ]
+  },
+  "D016": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Bihar",
+     54637.0
+    ],
+    [
+     "Uttar Pradesh",
+     84640.0
+    ],
+    [
+     "Jharkhand",
+     95839.0
+    ]
+   ]
+  },
+  "D017": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Maharashtra",
+     5233966.0
+    ],
+    [
+     "Delhi",
+     2071013.0
+    ],
+    [
+     "Uttar Pradesh",
+     1909885.0
+    ],
+    [
+     "Karnataka",
+     1888708.0
+    ],
+    [
+     "Tamil Nadu",
+     1463026.0
+    ]
+   ]
+  },
+  "D018": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "UP (East)",
+     112699737.0
+    ],
+    [
+     "Bihar",
+     109603873.0
+    ],
+    [
+     "Maharashtra",
+     105398354.0
+    ],
+    [
+     "Andhra Pradesh",
+     89751742.0
+    ],
+    [
+     "Madhya Pradesh",
+     88051240.0
+    ]
+   ]
+  },
+  "D019": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Uttar Pradesh",
+     259459000.0
+    ]
+   ]
+  },
+  "D020": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Uttar Pradesh",
+     19436.0
+    ],
+    [
+     "Maharashtra",
+     14832.0
+    ],
+    [
+     "Tamil Nadu",
+     13204.0
+    ],
+    [
+     "Karnataka",
+     11395.0
+    ],
+    [
+     "West Bengal",
+     10159.0
+    ]
+   ]
+  },
+  "D021": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Goa",
+     333709.0
+    ],
+    [
+     "Sikkim",
+     273145.0
+    ],
+    [
+     "Chandigarh",
+     253004.0
+    ],
+    [
+     "Delhi",
+     252768.0
+    ],
+    [
+     "Karnataka",
+     182371.0
+    ]
+   ]
+  },
+  "D022": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Assam",
+     154473.0
+    ]
+   ]
+  },
+  "D023": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Ladakh",
+     6564.69
+    ],
+    [
+     "Andaman and Nicobar Islands",
+     11976.68
+    ],
+    [
+     "Mizoram",
+     30184.18
+    ]
+   ]
+  },
+  "D024": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     13.07336901575499
+    ]
+   ]
+  },
+  "D025": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     6.4161086387104715
+    ]
+   ]
+  },
+  "D026": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     566456.0
+    ]
+   ]
+  },
+  "D027": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     3663.0
+    ]
+   ]
+  },
+  "D028": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     42.28937396798732
+    ]
+   ]
+  },
+  "D029": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1075884.0
+    ]
+   ]
+  },
+  "D030": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     11.377164607891894
+    ]
+   ]
+  },
+  "D031": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     -0.9410059028616796
+    ]
+   ]
+  },
+  "D032": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     78.60253610388702
+    ]
+   ]
+  },
+  "D033": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     10.344560045580506
+    ]
+   ]
+  },
+  "D034": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     0.13498165939039497
+    ]
+   ]
+  },
+  "D035": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1428000.0
+    ]
+   ]
+  },
+  "D036": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     7.61096035350306
+    ]
+   ]
+  },
+  "D037": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     120.486307146968
+    ]
+   ]
+  },
+  "D038": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Andhra Pradesh",
+     157.17754161529848
+    ],
+    [
+     "Telangana",
+     120.53030818226982
+    ],
+    [
+     "Tamil Nadu",
+     120.486307146968
+    ],
+    [
+     "Rajasthan",
+     94.1974762487929
+    ],
+    [
+     "Gujarat",
+     88.4391456256991
+    ]
+   ]
+  },
+  "D039": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     6.2774246228279695
+    ]
+   ]
+  },
+  "D040": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Chandigarh",
+     1005528.1969817316
+    ]
+   ]
+  },
+  "D041": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     9954.066627897319
+    ]
+   ]
+  },
+  "D042": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     22.317935165678698
+    ]
+   ]
+  },
+  "D043": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     894.0481215702828
+    ]
+   ]
+  },
+  "D044": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Daman and Diu",
+     322.5225225225225
+    ],
+    [
+     "Dadra and Nagar Haveli",
+     615.819209039548
+    ],
+    [
+     "Ladakh",
+     794.1176470588235
+    ]
+   ]
+  },
+  "D045": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     80.10828405006039
+    ]
+   ]
+  },
+  "D046": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Bihar",
+     6.2774246228279695
+    ],
+    [
+     "Manipur",
+     7.935542718151414
+    ],
+    [
+     "Uttar Pradesh",
+     8.055872173750855
+    ],
+    [
+     "Jharkhand",
+     8.65947915128243
+    ],
+    [
+     "Assam",
+     8.867454032280163
+    ]
+   ]
+  },
+  "D047": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     5.680570197255726
+    ]
+   ]
+  },
+  "D048": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Haryana",
+     9.480744853010512
+    ],
+    [
+     "Maharashtra",
+     7.892724302636022
+    ],
+    [
+     "Sikkim",
+     7.575402139978511
+    ],
+    [
+     "Jharkhand",
+     7.46029947168617
+    ],
+    [
+     "Odisha",
+     6.852322898433545
+    ]
+   ]
+  },
+  "D049": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     37.59448435718968
+    ]
+   ]
+  },
+  "D050": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     111757.11760626512
+    ]
+   ]
+  },
+  "D051": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     119.44087861144071
+    ]
+   ]
+  },
+  "D052": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Haryana",
+     286174.4534243488
+    ],
+    [
+     "Punjab",
+     214451.07092471464
+    ]
+   ]
+  },
+  "D053": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     58.86473007002565
+    ]
+   ]
+  },
+  "D054": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Karnataka",
+     23037.216616432972
+    ]
+   ]
+  },
+  "D055": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     11479.376266644807
+    ]
+   ]
+  },
+  "D056": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     929664.2276787718
+    ]
+   ]
+  },
+  "D057": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2018-19",
+     170288.6095855
+    ],
+    [
+     "2019-20",
+     185917.3460283
+    ],
+    [
+     "2020-21",
+     165308.0031374
+    ],
+    [
+     "2021-22",
+     217992.91204889998
+    ],
+    [
+     "2022-23",
+     270345.99
+    ],
+    [
+     "2023-24",
+     320116.83999999997
+    ],
+    [
+     "2024-25",
+     359854.69999999995
+    ],
+    [
+     "2025-26",
+     361777.64999999997
+    ]
+   ]
+  },
+  "D058": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2011",
+     1216147000.0
+    ],
+    [
+     "2012",
+     1232023000.0
+    ],
+    [
+     "2013",
+     1247899000.0
+    ],
+    [
+     "2014",
+     1263775000.0
+    ],
+    [
+     "2015",
+     1279651000.0
+    ],
+    [
+     "2016",
+     1294976000.0
+    ],
+    [
+     "2017",
+     1309197000.0
+    ],
+    [
+     "2018",
+     1323419000.0
+    ],
+    [
+     "2019",
+     1337640000.0
+    ],
+    [
+     "2020",
+     1351862000.0
+    ],
+    [
+     "2021",
+     1365482000.0
+    ],
+    [
+     "2022",
+     1377901000.0
+    ],
+    [
+     "2023",
+     1390319000.0
+    ],
+    [
+     "2024",
+     1402737000.0
+    ],
+    [
+     "2025",
+     1415156000.0
+    ],
+    [
+     "2026",
+     1426907000.0
+    ],
+    [
+     "2027",
+     1437324000.0
+    ],
+    [
+     "2028",
+     1447741000.0
+    ],
+    [
+     "2029",
+     1458158000.0
+    ],
+    [
+     "2030",
+     1468574000.0
+    ],
+    [
+     "2031",
+     1478370000.0
+    ],
+    [
+     "2032",
+     1486924000.0
+    ],
+    [
+     "2033",
+     1495478000.0
+    ],
+    [
+     "2034",
+     1504032000.0
+    ],
+    [
+     "2035",
+     1512586000.0
+    ],
+    [
+     "2036",
+     1521140000.0
+    ]
+   ]
+  },
+  "D059": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2015-03-31",
+     328399.0
+    ],
+    [
+     "2016-03-31",
+     366137.0
+    ],
+    [
+     "2017-03-31",
+     411408.0
+    ],
+    [
+     "2018-03-31",
+     441923.0
+    ],
+    [
+     "2019-03-31",
+     495762.0
+    ],
+    [
+     "2020-03-31",
+     545024.0
+    ],
+    [
+     "2021-03-31",
+     607649.0
+    ],
+    [
+     "2022-03-31",
+     670289.0
+    ],
+    [
+     "2023-03-31",
+     724013.0
+    ],
+    [
+     "2024-03-31",
+     803411.0
+    ],
+    [
+     "2025-03-31",
+     894855.0
+    ]
+   ]
+  },
+  "D060": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2011-12",
+     32648.0
+    ],
+    [
+     "2012-13",
+     33596.0
+    ],
+    [
+     "2013-14",
+     34901.0
+    ],
+    [
+     "2014-15",
+     35537.0
+    ],
+    [
+     "2015-16",
+     38184.0
+    ],
+    [
+     "2016-17",
+     42180.0
+    ],
+    [
+     "2017-18",
+     42876.0
+    ],
+    [
+     "2018-19",
+     43454.0
+    ],
+    [
+     "2019-20",
+     44265.0
+    ],
+    [
+     "2020-21",
+     40959.0
+    ],
+    [
+     "2021-22",
+     45294.0
+    ],
+    [
+     "2022-23",
+     48014.0
+    ],
+    [
+     "2023-24",
+     51898.0
+    ]
+   ]
+  },
+  "D061": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2025-04",
+     16547.88
+    ],
+    [
+     "2025-05",
+     12952.33
+    ],
+    [
+     "2025-06",
+     11784.49
+    ],
+    [
+     "2025-07",
+     12408.33
+    ],
+    [
+     "2025-08",
+     12512.23
+    ],
+    [
+     "2025-09",
+     12001.119999999999
+    ],
+    [
+     "2025-10",
+     13446.310000000001
+    ],
+    [
+     "2025-11",
+     12857.59
+    ],
+    [
+     "2025-12",
+     11984.66
+    ],
+    [
+     "2026-01",
+     14175.84
+    ],
+    [
+     "2026-02",
+     14014.51
+    ],
+    [
+     "2026-03",
+     13532.010000000002
+    ]
+   ]
+  },
+  "D062": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2005-03-31",
+     3646.0
+    ],
+    [
+     "2006-03-31",
+     3647.0
+    ],
+    [
+     "2007-03-31",
+     3685.0
+    ],
+    [
+     "2008-03-31",
+     3770.0
+    ],
+    [
+     "2009-03-31",
+     3904.0
+    ],
+    [
+     "2010-03-31",
+     4142.0
+    ],
+    [
+     "2011-03-31",
+     4323.0
+    ],
+    [
+     "2012-03-31",
+     4650.0
+    ],
+    [
+     "2013-03-31",
+     4990.0
+    ],
+    [
+     "2014-03-31",
+     5696.0
+    ],
+    [
+     "2015-03-31",
+     6210.0
+    ],
+    [
+     "2016-03-31",
+     6445.0
+    ],
+    [
+     "2017-03-31",
+     6675.0
+    ],
+    [
+     "2018-03-31",
+     6729.0
+    ],
+    [
+     "2019-03-31",
+     6917.0
+    ],
+    [
+     "2020-03-31",
+     7463.0
+    ],
+    [
+     "2021-03-31",
+     7584.0
+    ],
+    [
+     "2022-03-31",
+     7640.0
+    ],
+    [
+     "2023-03-31",
+     7832.0
+    ],
+    [
+     "2024-03-31",
+     7979.0
+    ],
+    [
+     "2025-03-31",
+     8226.0
+    ]
+   ]
+  },
+  "D063": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     427647.36999999994
+    ]
+   ]
+  },
+  "D064": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     53739000.0
+    ]
+   ]
+  },
+  "D065": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     100.03253108304233
+    ]
+   ]
+  },
+  "D066": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     275943.89984563226
+    ]
+   ]
+  },
+  "D067": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     24.06563187073013
+    ]
+   ]
+  },
+  "D068": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     -1938.0
+    ]
+   ]
+  },
+  "D069": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     296475.38
+    ]
+   ]
+  },
+  "D070": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1549000.0
+    ]
+   ]
+  },
+  "D071": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     147936.0
+    ]
+   ]
+  },
+  "D072": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D073": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     124848.0
+    ]
+   ]
+  },
+  "D074": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     14188.0
+    ]
+   ]
+  },
+  "D075": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     401593.61
+    ]
+   ]
+  },
+  "D076": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D077": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D078": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D079": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D080": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D081": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D082": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D083": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D084": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D085": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D086": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D087": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D088": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D089": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D090": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D091": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D092": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "correlation",
+   "rows": [
+    [
+     0.7553875697826837,
+     34
+    ]
+   ]
+  },
+  "D093": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D094": {
+   "split": "dev",
+   "expected": "answer",
+   "kind": "correlation",
+   "rows": [
+    [
+     0.8916257203858562,
+     33
+    ]
+   ]
+  },
+  "D095": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D096": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D097": {
+   "split": "dev",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "D098": {
+   "split": "dev",
+   "expected": "clarify",
+   "kind": "none"
+  },
+  "D099": {
+   "split": "dev",
+   "expected": "clarify",
+   "kind": "none"
+  },
+  "D100": {
+   "split": "dev",
+   "expected": "clarify",
+   "kind": "none"
+  },
+  "T001": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     12922.8
+    ]
+   ]
+  },
+  "T002": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     831251.09
+    ]
+   ]
+  },
+  "T003": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     171661.0
+    ]
+   ]
+  },
+  "T004": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     6801.0
+    ]
+   ]
+  },
+  "T005": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     867571.0
+    ]
+   ]
+  },
+  "T006": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     36159000.0
+    ]
+   ]
+  },
+  "T007": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     40773114.0
+    ]
+   ]
+  },
+  "T008": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Maharashtra",
+     4483171.0
+    ],
+    [
+     "Delhi",
+     1823669.0
+    ],
+    [
+     "Tamil Nadu",
+     1762746.0
+    ],
+    [
+     "Karnataka",
+     1371514.0
+    ],
+    [
+     "Gujarat",
+     1125894.0
+    ]
+   ]
+  },
+  "T009": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Maharashtra",
+     113769.17
+    ],
+    [
+     "Tamil Nadu",
+     46318.350000000006
+    ],
+    [
+     "Gujarat",
+     45540.41
+    ],
+    [
+     "Karnataka",
+     45314.229999999996
+    ],
+    [
+     "Uttar Pradesh",
+     34845.23
+    ]
+   ]
+  },
+  "T010": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Goa",
+     532854.0
+    ],
+    [
+     "Sikkim",
+     520466.0
+    ],
+    [
+     "Delhi",
+     417217.0
+    ]
+   ]
+  },
+  "T011": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Himachal Pradesh",
+     9504254.0
+    ],
+    [
+     "North East",
+     13564401.0
+    ],
+    [
+     "Jammu & Kashmir",
+     14361534.0
+    ]
+   ]
+  },
+  "T012": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Uttar Pradesh",
+     250749000.0
+    ],
+    [
+     "Bihar",
+     139871000.0
+    ],
+    [
+     "Maharashtra",
+     132899000.0
+    ],
+    [
+     "West Bengal",
+     101948000.0
+    ],
+    [
+     "Madhya Pradesh",
+     93472000.0
+    ]
+   ]
+  },
+  "T013": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     1.4675799688048516
+    ]
+   ]
+  },
+  "T014": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     6.421616008859332
+    ]
+   ]
+  },
+  "T015": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     735136.0
+    ]
+   ]
+  },
+  "T016": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     8.945896488623415
+    ]
+   ]
+  },
+  "T017": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     13.099276872283697
+    ]
+   ]
+  },
+  "T018": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     4084.0
+    ]
+   ]
+  },
+  "T019": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     329196.0
+    ]
+   ]
+  },
+  "T020": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     70.75962027367562
+    ]
+   ]
+  },
+  "T021": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     7.300387797538334
+    ]
+   ]
+  },
+  "T022": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     20.4369859599568
+    ]
+   ]
+  },
+  "T023": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     28183.22577613483
+    ]
+   ]
+  },
+  "T024": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Puducherry",
+     1150.166852057842
+    ],
+    [
+     "Odisha",
+     1142.2649959502598
+    ],
+    [
+     "Kerala",
+     1080.5407247529251
+    ]
+   ]
+  },
+  "T025": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     7.892724302636022
+    ]
+   ]
+  },
+  "T026": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     51.149951298762495
+    ]
+   ]
+  },
+  "T027": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     68871.03197035362
+    ]
+   ]
+  },
+  "T028": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     99.9689668159746
+    ]
+   ]
+  },
+  "T029": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "ranking",
+   "rows": [
+    [
+     "Gujarat",
+     18420.57731285623
+    ],
+    [
+     "Tamil Nadu",
+     16829.221903506732
+    ]
+   ]
+  },
+  "T030": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2018-19",
+     70561.90027439999
+    ],
+    [
+     "2019-20",
+     74430.04284349999
+    ],
+    [
+     "2020-21",
+     69121.0326976
+    ],
+    [
+     "2021-22",
+     85492.40645649999
+    ],
+    [
+     "2022-23",
+     104377.24
+    ],
+    [
+     "2023-24",
+     121329.10999999999
+    ],
+    [
+     "2024-25",
+     131115.43
+    ],
+    [
+     "2025-26",
+     130248.08
+    ]
+   ]
+  },
+  "T031": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2011-12",
+     615606.07
+    ],
+    [
+     "2012-13",
+     682650.21
+    ],
+    [
+     "2013-14",
+     734283.87
+    ],
+    [
+     "2014-15",
+     811427.64
+    ],
+    [
+     "2015-16",
+     894465.34
+    ],
+    [
+     "2016-17",
+     981341.96
+    ],
+    [
+     "2017-18",
+     1086569.73
+    ],
+    [
+     "2018-19",
+     1183019.75
+    ],
+    [
+     "2019-20",
+     1265277.33
+    ],
+    [
+     "2020-21",
+     1241117.83
+    ],
+    [
+     "2021-22",
+     1365587.43
+    ],
+    [
+     "2022-23",
+     1465997.53
+    ]
+   ]
+  },
+  "T032": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2015-03-31",
+     907347.0
+    ],
+    [
+     "2016-03-31",
+     970511.0
+    ],
+    [
+     "2017-03-31",
+     965047.0
+    ],
+    [
+     "2018-03-31",
+     1076998.0
+    ],
+    [
+     "2019-03-31",
+     1314165.0
+    ],
+    [
+     "2020-03-31",
+     1370412.0
+    ],
+    [
+     "2021-03-31",
+     1353058.0
+    ],
+    [
+     "2022-03-31",
+     1425079.0
+    ],
+    [
+     "2023-03-31",
+     1535986.0
+    ],
+    [
+     "2024-03-31",
+     1703009.0
+    ],
+    [
+     "2025-03-31",
+     1823669.0
+    ]
+   ]
+  },
+  "T033": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "series",
+   "rows": [
+    [
+     "2011",
+     104771000.0
+    ],
+    [
+     "2012",
+     106787000.0
+    ],
+    [
+     "2013",
+     108802000.0
+    ],
+    [
+     "2014",
+     110817000.0
+    ],
+    [
+     "2015",
+     112832000.0
+    ],
+    [
+     "2016",
+     114770000.0
+    ],
+    [
+     "2017",
+     116551000.0
+    ],
+    [
+     "2018",
+     118333000.0
+    ],
+    [
+     "2019",
+     120114000.0
+    ],
+    [
+     "2020",
+     121895000.0
+    ],
+    [
+     "2021",
+     123695000.0
+    ],
+    [
+     "2022",
+     125532000.0
+    ],
+    [
+     "2023",
+     127368000.0
+    ],
+    [
+     "2024",
+     129205000.0
+    ],
+    [
+     "2025",
+     131041000.0
+    ],
+    [
+     "2026",
+     132850000.0
+    ],
+    [
+     "2027",
+     134605000.0
+    ],
+    [
+     "2028",
+     136361000.0
+    ],
+    [
+     "2029",
+     138116000.0
+    ],
+    [
+     "2030",
+     139871000.0
+    ],
+    [
+     "2031",
+     141543000.0
+    ],
+    [
+     "2032",
+     143050000.0
+    ],
+    [
+     "2033",
+     144557000.0
+    ],
+    [
+     "2034",
+     146064000.0
+    ],
+    [
+     "2035",
+     147571000.0
+    ],
+    [
+     "2036",
+     149078000.0
+    ]
+   ]
+  },
+  "T034": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     27549.989999999998
+    ]
+   ]
+  },
+  "T035": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     278301000.0
+    ]
+   ]
+  },
+  "T036": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     57.458038179853524
+    ]
+   ]
+  },
+  "T037": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     13.756483585739293
+    ]
+   ]
+  },
+  "T038": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     34170.72
+    ]
+   ]
+  },
+  "T039": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T040": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     108.0
+    ]
+   ]
+  },
+  "T041": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "number",
+   "rows": [
+    [
+     87710.0
+    ]
+   ]
+  },
+  "T042": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T043": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T044": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T045": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T046": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T047": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T048": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T049": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T050": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T051": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "correlation",
+   "rows": [
+    [
+     0.1295285073617647,
+     34
+    ]
+   ]
+  },
+  "T052": {
+   "split": "test",
+   "expected": "refuse",
+   "kind": "none"
+  },
+  "T053": {
+   "split": "test",
+   "expected": "answer",
+   "kind": "correlation",
+   "rows": [
+    [
+     0.9171651950458325,
+     33
+    ]
+   ]
+  },
+  "T054": {
+   "split": "test",
+   "expected": "clarify",
+   "kind": "none"
+  },
+  "T055": {
+   "split": "test",
+   "expected": "clarify",
+   "kind": "none"
+  }
+ }
+}
