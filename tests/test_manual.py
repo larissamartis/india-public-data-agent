@@ -39,8 +39,8 @@ GSDP = workbook(
     ],
     [
         ["Table 21: Gross State Domestic Product (Current Prices) (Concld.)"],
-        ["Sr. No.", "State", "2014-15"],
-        [2, "Goa", 4500000],
+        ["Sr. No.", "State", "2014-15", "2015-16"],
+        [2, "Goa", 4500000, None],
     ],
 )
 
