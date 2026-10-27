@@ -1,0 +1,31 @@
+name: Cross-check
+
+# Prints the raw PDF text behind chosen gold answers, so they can be checked against the
+# source without opening the PDFs by hand. Runs when the cross-check changes, or on request.
+on:
+  push:
+    paths:
+      - src/bharat/eval/crosscheck.py
+      - .github/workflows/crosscheck.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Show source text
+        run: uv run python -m bharat.eval.crosscheck
