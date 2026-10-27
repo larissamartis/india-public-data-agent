@@ -3,4 +3,61 @@
 # original_url, downloaded_on, sha256, and optional dataset, unit and notes.
 # RBI files need dataset (for example gsdp_current) and unit (as printed, for example ₹ lakh).
 # Get a file's sha256 in PowerShell with: (Get-FileHash <file> -Algorithm SHA256).Hash.ToLower()
-files: []
+files:
+  # RBI Handbook of Statistics on Indian States 2024-25, released 11 Dec 2025.
+  - name: 19T_11122025B8CC230E4A34431999B4D6A107707BCA.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/19T_11122025B8CC230E4A34431999B4D6A107707BCA.XLSX
+    downloaded_on: 2026-10-27
+    sha256: 1f90818b79f1e53bfcaf90f76ef66e1db6e810ef22076791b049d429a184be15
+    dataset: per_capita_nsdp_current
+    unit: "₹"
+    notes: "Table 19, per capita NSDP at current prices, base 2011-12. J&K figures include Ladakh up to 2018-19."
+  - name: 20T_111220252B6EE27737FD4931A99C5A448B7CEC68.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/20T_111220252B6EE27737FD4931A99C5A448B7CEC68.XLSX
+    downloaded_on: 2026-10-27
+    sha256: 0861a3b6a0df2b41f21918b5108a9de0d93cb18d3808f625ef8bb0da24603a71
+    dataset: per_capita_nsdp_constant
+    unit: "₹"
+    notes: "Table 20, per capita NSDP at constant 2011-12 prices. J&K figures include Ladakh up to 2018-19."
+  - name: 21T_11122025D994949B48C44B68B4465FBB9ADDFF3D.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/21T_11122025D994949B48C44B68B4465FBB9ADDFF3D.XLSX
+    downloaded_on: 2026-10-27
+    sha256: 307860e934baa7ce60c76ef9b0086b0007a55d78730e5a77677ff49142bf8f00
+    dataset: gsdp_current
+    unit: "₹ lakh"
+    notes: "Table 21, GSDP at current prices, base 2011-12. J&K figures include Ladakh up to 2018-19."
+  - name: 22T_11122025E6BC0CB35180406EAB6E0D49DE51C8E8.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/22T_11122025E6BC0CB35180406EAB6E0D49DE51C8E8.XLSX
+    downloaded_on: 2026-10-27
+    sha256: e7afa1d2a2a227bd68a92614dcf03298da53f4d4e7acaa4b4aa1e5388f74644c
+    dataset: gsdp_constant
+    unit: "₹ lakh"
+    notes: "Table 22, GSDP at constant 2011-12 prices. J&K figures include Ladakh up to 2018-19."
+  - name: 152T_1112202512B2BF0FBDB74FF48CF835E2A6B7C592.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/152T_1112202512B2BF0FBDB74FF48CF835E2A6B7C592.XLSX
+    downloaded_on: 2026-10-27
+    sha256: 90a3db6ff0727aec2d967a4a7e3a87a5879eaf721d0f1169f7b6338e184cfbcf
+    dataset: scb_offices
+    unit: "number of offices"
+    notes: "Table 152, offices of scheduled commercial banks, as at end-March. From 2020 Dadra and Nagar Haveli includes Daman and Diu."
+  - name: 155T_11122025BC88547570414295AB088FBCF5C90806.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/155T_11122025BC88547570414295AB088FBCF5C90806.XLSX
+    downloaded_on: 2026-10-27
+    sha256: 29adca24dca8d86e826652172e987fceaa72afa13510df0cdb6bdd203ece614a
+    dataset: scb_deposits
+    unit: "₹ crore"
+    notes: "Table 155, deposits with scheduled commercial banks, as at end-March. From 2020 Dadra and Nagar Haveli includes Daman and Diu."
+  - name: 156T_1112202520771561966C49F1B9C00F56ACF97557.XLSX
+    source: rbi
+    original_url: https://rbidocs.rbi.org.in/rdocs/Publications/DOCs/156T_1112202520771561966C49F1B9C00F56ACF97557.XLSX
+    downloaded_on: 2026-10-27
+    sha256: b8fa36e7da927718f70f43702e83ba7d4847e6000df9b2b6e8ccc00dcd36ebd2
+    dataset: scb_credit
+    unit: "₹ crore"
+    notes: "Table 156, credit by scheduled commercial banks, as at end-March. From 2020 Dadra and Nagar Haveli includes Daman and Diu."

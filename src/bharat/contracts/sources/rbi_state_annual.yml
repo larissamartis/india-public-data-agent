@@ -1,13 +1,15 @@
-# RBI Handbook of Statistics on Indian States: one row per table (dataset), state and year.
-# Units differ by table (₹ lakh, ₹ crore, ₹, counts, per cent), so the unit travels with each
-# row and only negative values are rejected; growth tables are not loaded here.
+# RBI Handbook of Statistics on Indian States: one row per table (dataset), state and period.
+# period_type fy: a flow over a financial year (period '2011-12').
+# period_type end_march: a stock on 31 March (period '2025-03-31').
+# Units differ by table (₹, ₹ lakh, ₹ crore, counts), so the unit travels with each row.
 source: rbi
 table: rbi_state_annual
-key: [dataset, state_name, fy]
+key: [dataset, state_name, period]
 columns:
   dataset: {type: VARCHAR, not_null: true}
   unit: {type: VARCHAR, not_null: true}
-  fy: {type: VARCHAR, not_null: true}
+  period: {type: VARCHAR, not_null: true}
+  period_type: {type: VARCHAR, not_null: true, allowed: [fy, end_march]}
   state_name: {type: VARCHAR, not_null: true, state_name: true, allow_names: [All India]}
   value: {type: DOUBLE, not_null: true, min: 0}
 row_count_tolerance: 0.2

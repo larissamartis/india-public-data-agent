@@ -11,10 +11,14 @@ from bharat.ingest.common import make_client, sha256_bytes
 from bharat.ingest.manifest import ManifestFile
 
 
-def workbook(rows) -> bytes:
+def workbook(*sheets) -> bytes:
+    """One worksheet per list of rows, like RBI's T_21(i) and T_21(ii)."""
     book = openpyxl.Workbook()
-    for row in rows:
-        book.active.append(row)
+    book.remove(book.active)
+    for number, rows in enumerate(sheets, start=1):
+        sheet = book.create_sheet(f"T({number})")
+        for row in rows:
+            sheet.append(row)
     buffer = BytesIO()
     book.save(buffer)
     return buffer.getvalue()
@@ -32,6 +36,24 @@ GSDP = workbook(
         [None, "All India", 8736329, 9944013, 11233522],
         ["Note: * Undivided Andhra Pradesh till 2013-14."],
         ["Source: National Statistical Office."],
+    ],
+    [
+        ["Table 21: Gross State Domestic Product (Current Prices) (Concld.)"],
+        ["Sr. No.", "State", "2014-15"],
+        [2, "Goa", 4500000],
+    ],
+)
+
+DEPOSITS = workbook(
+    [
+        ["TABLE 155: STATE-WISE DEPOSITS BY SCHEDULED COMMERCIAL BANKS IN INDIA"],
+        ["(As at end-March)"],
+        ["(₹ crore)"],
+        ["Region/State/Union Territory", 2024, 2025.0],
+        ["NORTHERN REGION", 4382104, 4861045],
+        ["Delhi", 1855609, 2071013],
+        ["Ladakh", "-", 9885],
+        ["ALL INDIA", 24000000, 25000000],
     ]
 )
 
@@ -60,14 +82,16 @@ def release(files: dict[str, bytes]):
     return make_client(transport=httpx.MockTransport(handler)), requested
 
 
-def test_parse_state_by_year_unpivots_and_skips_notes():
-    records = rbi.parse_state_by_year(GSDP)
-    got = {(r["state_name"], r["fy"]): r["value"] for r in records}
+def test_parse_reads_every_sheet_and_skips_notes():
+    records = rbi.parse_state_by_period(GSDP)
+    got = {(r["state_name"], r["period"]): r["value"] for r in records}
     assert got[("Andhra Pradesh", "2012-13")] == 4115000
     assert got[("All India", "2013-14")] == 11233522
     assert ("Andhra Pradesh", "2013-14") not in got  # blank cell, no row
     assert ("Telangana", "2011-12") not in got  # '-' means no figure
-    assert len(records) == 9
+    assert got[("Goa", "2014-15")] == 4500000  # second sheet
+    assert len(records) == 10
+    assert {r["period_type"] for r in records} == {"fy"}
 
 
 @pytest.mark.parametrize(
@@ -88,12 +112,12 @@ def test_fy_label(raw, expected):
 def test_repeated_years_are_refused():
     content = workbook([["State", "2011-12", "2012-13", "2011-12"], ["Goa", 1, 2, 3]])
     with pytest.raises(rbi.RbiFormatError, match="more than one column"):
-        rbi.parse_state_by_year(content)
+        rbi.parse_state_by_period(content)
 
 
 def test_table_without_years_is_refused():
-    with pytest.raises(rbi.RbiFormatError, match="year labels"):
-        rbi.parse_state_by_year(workbook([["State", "Value"], ["Goa", 1]]))
+    with pytest.raises(rbi.RbiFormatError, match="no header row"):
+        rbi.parse_state_by_period(workbook([["State", "Value"], ["Goa", 1]]))
 
 
 def test_fetch_files_downloads_and_checks(tmp_path):
@@ -122,7 +146,7 @@ def test_inspect_shows_the_first_rows(tmp_path):
     path.write_bytes(GSDP)
     text = manual.inspect_file(path)
     assert "Sr. No. | State | 2011-12 | 2012-13 | 2013-14 (P)" in text
-    assert "[sheet Sheet:" in text
+    assert "[sheet T(1):" in text
     (tmp_path / "x.csv").write_text("State,Volume\nGoa,12\n", encoding="utf-8")
     assert "State | Volume" in manual.inspect_file(tmp_path / "x.csv")
     (tmp_path / "bad.pdf").write_bytes(b"not a pdf")
@@ -143,7 +167,7 @@ def test_rbi_run_writes_bronze(tmp_path, monkeypatch):
         f"select dataset, unit, count(*), count(distinct state_name) from '{path.as_posix()}' "
         "group by all"
     ).fetchall()
-    assert got == [("gsdp_current", "₹ lakh", 9, 4)]
+    assert got == [("gsdp_current", "₹ lakh", 10, 4)]
 
 
 def test_rbi_run_needs_dataset_and_unit(tmp_path, monkeypatch):
@@ -151,3 +175,28 @@ def test_rbi_run_needs_dataset_and_unit(tmp_path, monkeypatch):
     client, _ = release({"t21.xlsx": GSDP})
     with pytest.raises(rbi.RbiFormatError, match="dataset"):
         rbi.run(tmp_path, client=client)
+
+
+def test_end_march_tables_skip_regions():
+    records = rbi.parse_state_by_period(DEPOSITS)
+    got = {(r["state_name"], r["period"]): r["value"] for r in records}
+    assert got == {
+        ("Delhi", "2024-03-31"): 1855609,
+        ("Delhi", "2025-03-31"): 2071013,
+        ("Ladakh", "2025-03-31"): 9885,
+        ("ALL INDIA", "2024-03-31"): 24000000,
+        ("ALL INDIA", "2025-03-31"): 25000000,
+    }
+    assert {r["period_type"] for r in records} == {"end_march"}
+
+
+def test_bare_years_need_the_end_march_note():
+    content = workbook([["State", 2024, 2025], ["Delhi", 1, 2]])
+    with pytest.raises(rbi.RbiFormatError, match="end-March"):
+        rbi.parse_state_by_period(content)
+
+
+def test_a_period_on_two_sheets_is_refused():
+    sheet = [["State", "2011-12", "2012-13"], ["Goa", 1, 2]]
+    with pytest.raises(rbi.RbiFormatError, match="more than once"):
+        rbi.parse_state_by_period(workbook(sheet, sheet))
