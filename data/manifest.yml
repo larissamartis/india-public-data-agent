@@ -61,3 +61,18 @@ files:
     dataset: scb_credit
     unit: "₹ crore"
     notes: "Table 156, credit by scheduled commercial banks, as at end-March. From 2020 Dadra and Nagar Haveli includes Daman and Diu."
+  # Population projections, Technical Group on Population Projections, National Commission on
+  # Population (MoHFW), November 2019. Annual by state; Table 11 is population on 1 July.
+  - name: Report_Population_Projection_2019.pdf
+    source: population
+    original_url: https://nhm.gov.in/New_Updates_2018/Report_Population_Projection_2019.pdf
+    downloaded_on: 2026-10-27
+    sha256: 9a9031c9c75d609e03ab94ce0ac6115cb9d8a9ab82d1b18a47b78e90ae01331b
+    notes: "Projections 2011-2036, not counts."
+  # TRAI telecom subscription data as on 30 September 2026, released 27 Oct 2026 (PR 140/2026).
+  - name: PR_No140of2026_0.pdf
+    source: trai
+    original_url: https://www.trai.gov.in/sites/default/files/2026-10/PR_No140of2026_0.pdf
+    downloaded_on: 2026-10-27
+    sha256: d3a5c7d37fb299d8b49670bc35f95b2e91e509fcf8c9d437918f0cb6337111fc
+    notes: "Figures are by licensed service area, not by state."
