@@ -43,3 +43,21 @@ jobs:
       - name: Report dbt results
         if: always()
         run: uv run python -m bharat.warehouse report --run-results dbt/target/run_results.json
+
+      # Checks the metric definitions, and that they work against the fixture warehouse.
+      - name: Validate MetricFlow definitions
+        working-directory: dbt
+        env:
+          BRONZE_DIR: ${{ github.workspace }}/data/fixture-bronze
+          SERVING_DB: ${{ github.workspace }}/data/fixture-serving/serving.duckdb
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
+        run: |
+          set -o pipefail
+          uv run mf validate-configs 2>&1 | tee "$GITHUB_WORKSPACE/mf.log"
+
+      - name: Report MetricFlow errors
+        if: failure()
+        run: |
+          [ -f mf.log ] || exit 0
+          detail=$(tail -n 40 mf.log | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error title=MetricFlow::$detail"

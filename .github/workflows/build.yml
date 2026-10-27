@@ -1,13 +1,17 @@
 name: Build
 
-# Click-to-run: load every source that can be loaded, then build and test the warehouse.
-# MoSPI is skipped until its login secrets exist. The serving database is kept as a
-# downloadable artifact for 14 days; nothing is committed yet.
+# Click-to-run: load every source that can be loaded, rebuild and test the warehouse, and
+# commit the new serving database if every test passed. MoSPI is skipped until its login
+# secrets exist. The previous serving file's figures feed the revisions table.
 on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -50,9 +54,17 @@ jobs:
       - name: Summary
         run: uv run python -m bharat.warehouse summary
 
-      - name: Keep serving database
-        uses: actions/upload-artifact@v4
-        with:
-          name: serving-duckdb
-          path: data/serving/serving.duckdb
-          retention-days: 14
+      - name: Commit serving database
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898748+github-actions[bot]@users.noreply.github.com"
+          git add data/serving/serving.duckdb
+          if git diff --cached --quiet; then
+            echo "::notice title=serving database::unchanged"
+            exit 0
+          fi
+          git commit -m "data: rebuild serving database (run ${GITHUB_RUN_ID})"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          size=$(du -h data/serving/serving.duckdb | cut -f1)
+          echo "::notice title=serving database::committed ($size)"

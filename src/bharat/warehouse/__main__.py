@@ -30,6 +30,7 @@ MARTS = (
     "dim_source",
     "dim_period",
     "coverage",
+    "revisions",
 )
 
 
@@ -39,10 +40,20 @@ def _annotate(level: str, title: str, message: str) -> None:
         print(f"::{level} title={title}::{text}", flush=True)
 
 
-def report(run_results: Path) -> int:
-    """Post every failed or erroring dbt node; return 1 if there was any."""
+def report(run_results: Path, log: Path = Path("dbt/logs/dbt.log")) -> int:
+    """Post every failed or erroring dbt node; return 1 if there was any.
+
+    When dbt stopped before running anything (a parse or compilation error, for example in
+    a metric definition), there are no results, so the error lines from dbt's log are posted.
+    """
     if not run_results.exists():
-        _annotate("error", "dbt", f"{run_results} not found; dbt did not get far")
+        lines = (
+            log.read_text(encoding="utf-8", errors="replace").splitlines() if log.exists() else []
+        )
+        start = next((i for i, line in enumerate(lines) if "Error" in line), None)
+        detail = "\n".join(lines[start : start + 25]) if start is not None else "no dbt log"
+        _annotate("error", "dbt did not run", detail[:3000])
+        print(detail)
         return 1
     results = json.loads(run_results.read_text(encoding="utf-8"))["results"]
     bad = [r for r in results if r["status"] in {"error", "fail", "runtime error"}]
@@ -95,8 +106,7 @@ def main(argv: list[str] | None = None) -> int:
         paths = write_fixtures(args.bronze)
         print(f"wrote {len(paths)} fixture tables to {args.bronze}")
     elif args.command == "prepare":
-        counts = prepare(args.bronze)
-        args.database.parent.mkdir(parents=True, exist_ok=True)
+        counts = prepare(args.bronze, args.database)
         print(f"prepared {args.bronze}: {counts}")
     elif args.command == "report":
         return report(args.run_results)

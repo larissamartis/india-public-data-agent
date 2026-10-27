@@ -19,3 +19,5 @@ models:
       +materialized: ephemeral
     marts:
       +materialized: table
+    semantic:
+      +materialized: table

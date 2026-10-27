@@ -1,0 +1,60 @@
+version: 2
+
+# The semantic layer, in MetricFlow's YAML. Metrics are defined once here, validated in CI,
+# and read by the agent as a list; the app does not need MetricFlow at run time.
+
+models:
+  - name: metricflow_time_spine
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day
+
+semantic_models:
+  - name: state_metric
+    description: >
+      Every state-level figure in long form (fct_state_metric). A metric is this table's
+      `value`, filtered to one metric_id. Periods keep their native grain; period_start is
+      the time axis.
+    model: ref('fct_state_metric')
+    defaults:
+      agg_time_dimension: period_start
+    entities:
+      - name: state_metric_row
+        type: primary
+        expr: row_key
+      - name: state
+        type: foreign
+        expr: state_code
+    dimensions:
+      - name: metric_id
+        type: categorical
+      - name: period_type
+        type: categorical
+      - name: period_label
+        type: categorical
+      - name: source_id
+        type: categorical
+      - name: period_start
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: state_value_sum
+        description: Sum of value. Only meaningful for metrics whose combine_rule is 'sum'.
+        agg: sum
+        expr: value
+
+  - name: state
+    description: States and UTs keyed on LGD codes (dim_state); code 0 is India.
+    model: ref('dim_state')
+    entities:
+      - name: state
+        type: primary
+        expr: state_code
+    dimensions:
+      - name: state_name
+        type: categorical
+      - name: kind
+        type: categorical

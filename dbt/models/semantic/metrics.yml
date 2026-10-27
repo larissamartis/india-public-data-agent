@@ -1,0 +1,111 @@
+version: 2
+
+# One simple metric per additive measure in dim_metric (combine_rule = sum). Ratios such as
+# per-capita NSDP are not defined as sums or averages: a group's value has to be rebuilt
+# from its parts. tests/test_semantic_layer.py keeps this file in step with seed_metrics.csv.
+
+metrics:
+  - name: gst_total
+    label: "GST collections, total (₹ crore)"
+    description: "Domestic GST collected in the month (CGST + SGST + IGST), by state of registration. Provisional."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gst_total'"
+
+  - name: gst_cgst
+    label: "GST collections, CGST (₹ crore)"
+    description: "Central GST collected in the month, by state of registration. Provisional."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gst_cgst'"
+
+  - name: gst_sgst
+    label: "GST collections, SGST (₹ crore)"
+    description: "State GST collected in the month, by state of registration. Provisional."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gst_sgst'"
+
+  - name: gst_igst
+    label: "GST collections, IGST (₹ crore)"
+    description: "Integrated GST collected in the month, by state of registration. Provisional."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gst_igst'"
+
+  - name: gsdp_current
+    label: "GSDP, current prices (₹ crore)"
+    description: "Gross State Domestic Product at current prices, base 2011-12, per financial year."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gsdp_current'"
+
+  - name: gsdp_constant
+    label: "GSDP, constant 2011-12 prices (₹ crore)"
+    description: "Gross State Domestic Product at constant 2011-12 prices, per financial year."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'gsdp_constant'"
+
+  - name: scb_offices
+    label: "Bank offices, scheduled commercial banks"
+    description: "Offices of scheduled commercial banks as at end-March."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'scb_offices'"
+
+  - name: scb_deposits
+    label: "Bank deposits, scheduled commercial banks (₹ crore)"
+    description: "Deposits with scheduled commercial banks as at end-March."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'scb_deposits'"
+
+  - name: scb_credit
+    label: "Bank credit, scheduled commercial banks (₹ crore)"
+    description: "Credit by scheduled commercial banks as at end-March."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'scb_credit'"
+
+  - name: population
+    label: "Population, projected (persons)"
+    description: "Projected population on 1 July (2019 projections from Census 2011)."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'population'"
+
+  - name: population_male
+    label: "Male population, projected (persons)"
+    description: "Projected male population on 1 July."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'population_male'"
+
+  - name: population_female
+    label: "Female population, projected (persons)"
+    description: "Projected female population on 1 July."
+    type: simple
+    type_params:
+      measure: state_value_sum
+    filter: "{{ Dimension('state_metric_row__metric_id') }} = 'population_female'"
+
+  # Credit-deposit ratio rebuilt from its parts, so it is correct for any group of states.
+  - name: credit_deposit_ratio
+    label: "Credit-deposit ratio, scheduled commercial banks"
+    description: "Credit divided by deposits as at end-March (a fraction; multiply by 100 for per cent), from RBI Handbook Tables 155 and 156."
+    type: ratio
+    type_params:
+      numerator: scb_credit
+      denominator: scb_deposits

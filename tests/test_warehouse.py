@@ -52,3 +52,35 @@ def test_report_posts_failures(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "::error title=dbt fail: test.x.unique_b::Got 2 results" in out
     assert "1 passed, 0 warned, 1 failed" in out
+
+
+def test_previous_values_are_kept_and_the_old_database_removed(tmp_path):
+    from bharat.warehouse.prepare import save_previous_values
+
+    database = tmp_path / "serving.duckdb"
+    con = duckdb.connect(str(database))
+    con.execute(
+        "create table fct_state_metric as select 'gst_total|32|2026-08' as row_key, "
+        "'gst_total' as metric_id, '2026-08' as period_label, 2500.0 as value"
+    )
+    con.execute("create table build_info as select timestamp '2026-10-27 10:00' as built_at")
+    con.close()
+    assert save_previous_values(database, tmp_path) == 1
+    assert not database.exists()
+    rows = duckdb.sql(f"select * from '{(tmp_path / 'previous_values.parquet').as_posix()}'")
+    assert rows.fetchall()[0][:4] == ("gst_total|32|2026-08", "gst_total", "2026-08", 2500.0)
+
+
+def test_first_build_has_no_previous_values(tmp_path):
+    from bharat.warehouse.prepare import save_previous_values
+
+    assert save_previous_values(tmp_path / "none.duckdb", tmp_path) == 0
+    assert (tmp_path / "previous_values.parquet").exists()
+
+
+def test_report_shows_dbt_log_errors_when_dbt_never_ran(tmp_path, monkeypatch, capsys):
+    log = tmp_path / "dbt.log"
+    log.write_text("info line\nCompilation Error in metric x\n  bad filter\n", encoding="utf-8")
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    assert cli.report(tmp_path / "missing.json", log) == 1
+    assert "Compilation Error in metric x" in capsys.readouterr().out

@@ -13,3 +13,5 @@ sources:
       - name: trai_wireless_lsa
       - name: ref_state
       - name: ref_state_name
+      - name: previous_values
+        description: The last build's figures, saved by prepare before the rebuild (empty at first).

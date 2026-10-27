@@ -92,8 +92,54 @@ def state_name_rows(bronze: Path) -> list[tuple[str, int]]:
     return rows
 
 
-def prepare(bronze: Path) -> dict[str, int]:
-    """Fill in missing tables and write the two reference files. Returns row counts."""
+PREVIOUS_COLUMNS = {
+    "row_key": "VARCHAR",
+    "metric_id": "VARCHAR",
+    "period_label": "VARCHAR",
+    "value": "DOUBLE",
+    "built_at": "TIMESTAMP",
+}
+
+
+def save_previous_values(database: Path, bronze: Path) -> int:
+    """Keep the last build's figures for the revisions table, then remove the old database.
+
+    The warehouse is rebuilt from scratch every time, so the serving file never carries
+    leftovers. Returns how many previous values were kept (0 on the first build).
+    """
+    rows: list[tuple] = []
+    if database.exists():
+        con = duckdb.connect(str(database), read_only=True)
+        try:
+            tables = {
+                r[0] for r in con.execute("select table_name from duckdb_tables()").fetchall()
+            }
+            built_at = (
+                "(select max(built_at) from build_info)" if "build_info" in tables else "null"
+            )
+            parts = [
+                f"select row_key, metric_id, period_label, value, {built_at} from {table}"
+                for table in ("fct_state_metric", "fct_national_metric")
+                if table in tables
+            ]
+            if parts:
+                rows = con.execute(" union all ".join(parts)).fetchall()
+        finally:
+            con.close()
+        database.unlink()
+    con = duckdb.connect()
+    try:
+        _write(con, "previous_values", PREVIOUS_COLUMNS, rows, _path(bronze, "previous_values"))
+    finally:
+        con.close()
+    return len(rows)
+
+
+def prepare(bronze: Path, database: Path | None = None) -> dict[str, int]:
+    """Fill in missing tables, write the reference files and keep the last build's values."""
+    previous = save_previous_values(database, bronze) if database else 0
+    if database:
+        database.parent.mkdir(parents=True, exist_ok=True)
     missing = write_missing(bronze)
     states = [(s.code, s.name, s.kind, s.valid_from, s.valid_to) for s in load_states()] + [
         (NATIONAL_CODE, "India", "country", None, None)
@@ -123,4 +169,9 @@ def prepare(bronze: Path) -> dict[str, int]:
         )
     finally:
         con.close()
-    return {"missing_tables": len(missing), "states": len(states), "names": len(names)}
+    return {
+        "missing_tables": len(missing),
+        "states": len(states),
+        "names": len(names),
+        "previous_values": previous,
+    }

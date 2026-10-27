@@ -58,3 +58,16 @@ models:
     columns:
       - name: source_id
         tests: [unique, not_null]
+
+  - name: revisions
+    columns:
+      - name: row_key
+        tests: [unique]
+      - name: change_type
+        tests:
+          - accepted_values: {values: [changed, removed]}
+
+  - name: build_info
+    columns:
+      - name: built_at
+        tests: [not_null]
