@@ -133,7 +133,7 @@ def check_contract(
     for name in sorted(extra):
         violations.append(Violation("unexpected_column", name, "column not in contract"))
 
-    row_count = con.execute(f"select count(*) from {table}").fetchone()[0]
+    row_count = con.execute(f"select count(*) from {table}").fetchall()[0][0]
     if row_count == 0:
         violations.append(Violation("row_count", None, "table is empty"))
     elif previous_row_count:
@@ -155,7 +155,7 @@ def check_contract(
         cols = ", ".join(_quote(k) for k in contract.key)
         dupes = con.execute(
             f"select count(*) from (select 1 from {table} group by {cols} having count(*) > 1)"
-        ).fetchone()[0]
+        ).fetchall()[0][0]
         if dupes:
             violations.append(
                 Violation(
@@ -176,21 +176,21 @@ def _check_column(
     found: list[Violation] = []
 
     if rule.not_null:
-        nulls = con.execute(f"select count(*) from {table} where {col} is null").fetchone()[0]
+        nulls = con.execute(f"select count(*) from {table} where {col} is null").fetchall()[0][0]
         if nulls:
             found.append(Violation("not_null", name, f"{nulls} null values"))
 
     if rule.min is not None:
         n, worst = con.execute(
             f"select count(*), min({col}) from {table} where {col} < ?", [rule.min]
-        ).fetchone()
+        ).fetchall()[0]
         if n:
             found.append(Violation("min", name, f"{n} values below {rule.min} (lowest {worst})"))
 
     if rule.max is not None:
         n, worst = con.execute(
             f"select count(*), max({col}) from {table} where {col} > ?", [rule.max]
-        ).fetchone()
+        ).fetchall()[0]
         if n:
             found.append(Violation("max", name, f"{n} values above {rule.max} (highest {worst})"))
 
@@ -231,7 +231,7 @@ def _check_column(
 def _check_freshness(
     con: duckdb.DuckDBPyConnection, table: str, rule: Freshness, today: date
 ) -> list[Violation]:
-    latest = con.execute(f"select max({_quote(rule.column)}) from {table}").fetchone()[0]
+    latest = con.execute(f"select max({_quote(rule.column)}) from {table}").fetchall()[0][0]
     if latest is None:
         return [Violation("freshness", rule.column, "no dates found")]
     age = (today - _as_date(latest)).days

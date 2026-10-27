@@ -33,16 +33,16 @@ def _annotate(level: str, title: str, message: str) -> None:
 
 def _summarise(path: Path) -> str:
     rel = f"'{path.as_posix()}'"
-    count = duckdb.execute(f"select count(*) from {rel}").fetchone()[0]
+    count = duckdb.sql(f"select count(*) from {rel}").fetchall()[0][0]
     columns = [c[0] for c in duckdb.sql(f"describe select * from {rel}").fetchall()]
     parts = [f"{path.name}: {count} rows"]
     for column in ("state", "state_name"):
         if column in columns:
-            names = duckdb.execute(f"select count(distinct {column}) from {rel}").fetchone()[0]
+            names = duckdb.sql(f"select count(distinct {column}) from {rel}").fetchall()[0][0]
             parts.append(f"{names} distinct {column}")
     for column in ("month", "year"):
         if column in columns:
-            low, high = duckdb.execute(f"select min({column}), max({column}) from {rel}").fetchone()
+            low, high = duckdb.sql(f"select min({column}), max({column}) from {rel}").fetchall()[0]
             parts.append(f"{column} {low} to {high}")
     return "; ".join(parts)
 

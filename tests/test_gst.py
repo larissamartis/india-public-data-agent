@@ -114,8 +114,8 @@ def test_run_downloads_each_year_and_writes_bronze(tmp_path):
 
     assert len(requested) == 10  # 2017-18 to 2026-27; the 2026-27 file isn't out yet
     assert len(paths) == 2 and all(p.exists() for p in paths)
-    rows = duckdb.execute(
+    rows = duckdb.sql(
         f"select count(*), count(distinct state_name) from '{paths[0].as_posix()}'"
-    ).fetchone()
+    ).fetchall()[0]
     assert rows == (9 * 2 * 2, 2)  # 9 years x 2 states x 2 months
     assert (tmp_path / "raw" / "gst" / "statewise_GST_collection_2025-26.xlsx").exists()
