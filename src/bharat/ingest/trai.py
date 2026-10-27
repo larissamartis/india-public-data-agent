@@ -63,7 +63,8 @@ SERVICE_AREAS = {
 _MONTHS = {name.lower(): i for i, name in enumerate(calendar.month_abbr) if name} | {"sept": 9}
 _MONTH_LABEL = re.compile(r"\b([A-Za-z]{3,4})-(\d{2})\b")
 _NUMBER = re.compile(r"\(\s*[\d,]+\s*\)|\d[\d,]*")
-_ROW = re.compile(r"^([A-Za-z][A-Za-z .&()]*?)\s+[\d(]")
+# The name ends where the first number starts; "(W)" in "U.P. (W)" is not a number.
+_ROW = re.compile(r"^([A-Za-z][A-Za-z .&()]*?)\s+(?=\d|\(\s*\d)")
 
 
 class TraiFormatError(ValueError):
