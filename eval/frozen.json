@@ -1,0 +1,9 @@
+{
+ "frozen_on": "2026-10-28",
+ "note": "Questions, expected behaviour and caveats were fixed before any agent code was written. Changing these files means updating these fingerprints in a separate, explained commit.",
+ "sha256": {
+  "eval/questions/dev.yaml": "573f3c9a5793a0339a39cf7d8ec7faae5dccec9dffaa3ac0e49c274f6c6eb943",
+  "eval/questions/test.yaml": "d538de6b8f82c558b9e77f16f12d5d4267129c37c6a0c049bb969f831452c8f7",
+  "eval/caveats.yaml": "1793cc7242e3ee9ead3654ef35335642e543605521eb8fdb5b4bf30cfc72ed1b"
+ }
+}

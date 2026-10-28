@@ -11,6 +11,18 @@ TEST = load_questions("test")
 WITH_GOLD = [q for q in DEV + TEST if q.gold_sql]
 
 
+def test_benchmark_is_frozen():
+    """Question files may only change together with their recorded fingerprints."""
+    import hashlib
+    import json
+
+    root = SERVING_DB.parents[2]
+    frozen = json.loads((root / "eval" / "frozen.json").read_text(encoding="utf-8"))
+    for name, expected in frozen["sha256"].items():
+        content = (root / name).read_bytes().replace(b"\r\n", b"\n")
+        assert hashlib.sha256(content).hexdigest() == expected, f"{name} changed after freezing"
+
+
 def test_questions_follow_the_agreed_plan():
     assert check_plan(DEV, TEST) == []
     assert len(DEV) == 100 and len(TEST) == 55
