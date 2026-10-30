@@ -18,9 +18,9 @@ Every incorrect answer, labelled by where it went wrong.
 | D001 | single_fact | answer | answer | missing caveat | provisional |
 | D002 | single_fact | answer | refuse | refuse instead of answer at plan | provisional |
 
-## Plain LLM (no data) – dev (3 of 3 wrong)
+## Plain LLM (no data) – dev (6 of 6 wrong)
 
-- refuse instead of answer: 2
+- refuse instead of answer: 5
 - wrong values: 1
 
 | id | type | expected | got | label | missing caveats |
@@ -28,4 +28,7 @@ Every incorrect answer, labelled by where it went wrong.
 | D001 | single_fact | answer | refuse | refuse instead of answer | provisional |
 | D002 | single_fact | answer | refuse | refuse instead of answer | provisional |
 | D003 | single_fact | answer | answer | wrong values |  |
+| D004 | single_fact | answer | refuse | refuse instead of answer |  |
+| D005 | single_fact | answer | refuse | refuse instead of answer |  |
+| D006 | single_fact | answer | refuse | refuse instead of answer |  |
 
