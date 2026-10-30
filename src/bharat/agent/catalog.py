@@ -66,7 +66,9 @@ def connect(path: Path = SERVING_DB) -> duckdb.DuckDBPyConnection:
         read_only=True,
         config={"enable_external_access": False, "autoload_known_extensions": False},
     )
-    con.execute("set lock_configuration = true")
+    # A second connection in the same process shares the database, which may be locked already.
+    if not con.execute("select current_setting('lock_configuration')").fetchall()[0][0]:
+        con.execute("set lock_configuration = true")
     return con
 
 

@@ -343,6 +343,15 @@ def test_correlation_maths():
     assert 0.98 < stats["pearson"] < 1.0
 
 
+def test_a_second_connection_opens_and_stays_locked(con):
+    import duckdb
+
+    other = connect()
+    assert other.execute("select current_setting('lock_configuration')").fetchall()[0][0]
+    with pytest.raises(duckdb.Error):
+        other.execute("set enable_external_access = true")
+
+
 def test_parse_json_accepts_fenced_replies():
     assert parse_json('```json\n{"sql": "select 1"}\n```') == {"sql": "select 1"}
 
