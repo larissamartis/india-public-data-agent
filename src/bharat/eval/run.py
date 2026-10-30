@@ -121,13 +121,62 @@ def _pct(x: float) -> str:
     return f"{100 * x:.0f}%"
 
 
+def test_run_count(results: Path = RESULTS) -> int:
+    path = results / "test_runs.json"
+    return json.loads(path.read_text(encoding="utf-8")).get("count", 0) if path.exists() else 0
+
+
+def summarise(data: dict[tuple[str, str], list[dict]]) -> list[dict]:
+    """One row per setup and split, in report order; the report and the app both use it."""
+    rows = []
+    for (setup, split), records in sorted(
+        data.items(), key=lambda kv: (kv[0][1], SETUPS.index(kv[0][0]) if kv[0][0] in SETUPS else 9)
+    ):
+        n = len(records)
+        scores = [r["score"] for r in records]
+        outs = [r["output"] for r in records]
+        correct = sum(s["correct"] for s in scores)
+        low, high = wilson(correct, n)
+        answerable = [s for s in scores if s["expected"] == "answer"]
+        rows.append(
+            {
+                "setup": setup,
+                "name": SETUP_NAMES.get(setup, setup),
+                "split": split,
+                "n": n,
+                "correct": correct,
+                "rate": correct / n,
+                "low": low,
+                "high": high,
+                "wrong_answers": sum(s["wrong_answer"] for s in scores),
+                "over_refusals": sum(s["over_refusal"] for s in answerable),
+                "answerable": len(answerable),
+                "caveats_rate": sum(s["caveats_ok"] for s in scores) / n,
+                "calls": statistics.mean(o["llm_calls"] for o in outs),
+                "median_seconds": statistics.median(o["seconds"] for o in outs),
+                "fallbacks": sum(o["fallbacks"] for o in outs),
+            }
+        )
+    return rows
+
+
+def by_question_type(
+    data: dict[tuple[str, str], list[dict]],
+) -> dict[tuple[str, str], dict[str, list[bool]]]:
+    """Correct or not, per question type, for each setup and split (in report order)."""
+    found: dict[tuple[str, str], dict[str, list[bool]]] = {}
+    for row in summarise(data):
+        groups: dict[str, list[bool]] = defaultdict(list)
+        for record in data[(row["setup"], row["split"])]:
+            groups[record["score"]["type"]].append(record["score"]["correct"])
+        found[(row["setup"], row["split"])] = groups
+    return found
+
+
 def report(results: Path = RESULTS) -> tuple[Path, Path]:
     data = _load(results)
     gold = _gold()
-    test_runs = 0
-    runs_path = results / "test_runs.json"
-    if runs_path.exists():
-        test_runs = json.loads(runs_path.read_text(encoding="utf-8")).get("count", 0)
+    test_runs = test_run_count(results)
     lines = [
         "# Benchmark results",
         "",
@@ -142,29 +191,14 @@ def report(results: Path = RESULTS) -> tuple[Path, Path]:
         " LLM calls / question | median seconds | fallbacks |",
         "|---|---|---|---|---|---|---|---|---|---|",
     ]
-    by_type: dict[tuple[str, str], dict[str, list[bool]]] = {}
-    for (setup, split), rows in sorted(
-        data.items(), key=lambda kv: (kv[0][1], SETUPS.index(kv[0][0]) if kv[0][0] in SETUPS else 9)
-    ):
-        n = len(rows)
-        scores = [r["score"] for r in rows]
-        outs = [r["output"] for r in rows]
-        correct = sum(s["correct"] for s in scores)
-        low, high = wilson(correct, n)
-        answerable = [s for s in scores if s["expected"] == "answer"]
+    for row in summarise(data):
         lines.append(
-            f"| {SETUP_NAMES.get(setup, setup)} | {split} | {n} | {_pct(correct / n)} "
-            f"({_pct(low)}–{_pct(high)}) | {sum(s['wrong_answer'] for s in scores)} | "
-            f"{sum(s['over_refusal'] for s in answerable)} of {len(answerable)} | "
-            f"{_pct(sum(s['caveats_ok'] for s in scores) / n)} | "
-            f"{statistics.mean(o['llm_calls'] for o in outs):.1f} | "
-            f"{statistics.median(o['seconds'] for o in outs):.1f} | "
-            f"{sum(o['fallbacks'] for o in outs)} |"
+            f"| {row['name']} | {row['split']} | {row['n']} | {_pct(row['rate'])} "
+            f"({_pct(row['low'])}–{_pct(row['high'])}) | {row['wrong_answers']} | "
+            f"{row['over_refusals']} of {row['answerable']} | {_pct(row['caveats_rate'])} | "
+            f"{row['calls']:.1f} | {row['median_seconds']:.1f} | {row['fallbacks']} |"
         )
-        groups: dict[str, list[bool]] = defaultdict(list)
-        for s in scores:
-            groups[s["type"]].append(s["correct"])
-        by_type[(setup, split)] = groups
+    by_type = by_question_type(data)
 
     for split in ("dev", "test"):
         keys = [k for k in by_type if k[1] == split]
