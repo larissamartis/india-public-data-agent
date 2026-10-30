@@ -163,7 +163,8 @@ def test_run_and_report_end_to_end(tmp_path):
 def test_unanswered_questions_are_left_out_and_a_run_stops(tmp_path):
     from bharat.eval.run import STOP_AFTER, _load, summarise
 
-    llm = FakeLLM({"plain": [{"status": "answer", "value": 3077.71}]})
+    reply = {"status": "answer", "value": 3077.71, "caveats": ["Provisional data."]}
+    llm = FakeLLM({"plain": [reply]})
     run("plain", "dev", llm, results=tmp_path)  # one answer, then no replies left
     lines = (tmp_path / "plain_dev.jsonl").read_text("utf-8").splitlines()
     assert len(lines) == 1 + STOP_AFTER  # it stopped instead of failing all 100
