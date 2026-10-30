@@ -142,10 +142,10 @@ if agent is None:
     )
 
 st.markdown('<p class="small">Try one:</p>', unsafe_allow_html=True)
-columns = st.columns(len(EXAMPLES))
-for column, example in zip(columns, EXAMPLES, strict=True):
-    column.button(
-        example, key=f"example_{EXAMPLES.index(example)}", on_click=_use_example, args=(example,)
+columns = st.columns(2)
+for number, example in enumerate(EXAMPLES):
+    columns[number % 2].button(
+        example, key=f"example_{number}", on_click=_use_example, args=(example,), width="stretch"
     )
 
 with st.form("ask"):

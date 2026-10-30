@@ -22,12 +22,12 @@ if not rows:
     st.stop()
 
 splits = sorted({r["split"] for r in rows}, key=["dev", "test"].index)
-split = st.radio(
-    "Question set",
-    splits,
-    horizontal=True,
-    format_func={"dev": "Development (100)", "test": "Held-out test (55)"}.get,
-)
+SPLIT_NAMES = {"dev": "Development set (100 questions)", "test": "Held-out test set (55)"}
+if len(splits) > 1:
+    split = st.radio("Question set", splits, horizontal=True, format_func=SPLIT_NAMES.get)
+else:
+    split = splits[0]
+    st.markdown(f'<p class="small">{SPLIT_NAMES[split]}</p>', unsafe_allow_html=True)
 shown = [r for r in rows if r["split"] == split]
 
 for column, row in zip(st.columns(len(shown)), shown, strict=True):

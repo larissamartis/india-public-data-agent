@@ -25,7 +25,8 @@ CSS = f"""
 h1, h2, h3 {{ color: #14263D; letter-spacing: -0.01em; }}
 .lead {{ color: {MUTED}; font-size: 1.05rem; margin-top: -0.6rem; margin-bottom: 1rem; }}
 .small {{ color: {MUTED}; font-size: 0.85rem; }}
-.big-number {{ color: {BRAND}; font-size: 2.1rem; font-weight: 700; line-height: 1.1; }}
+.big-number {{ color: {BRAND}; font-size: 2rem; font-weight: 700; line-height: 1.2;
+  padding-bottom: 0.35rem; }}
 .answer {{ font-size: 1.12rem; line-height: 1.55; }}
 .pill {{ display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px;
   background: #E8EEF6; color: {BRAND}; font-size: 0.78rem; margin-right: 0.3rem; }}
