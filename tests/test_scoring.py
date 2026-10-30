@@ -158,3 +158,14 @@ def test_run_and_report_end_to_end(tmp_path):
     text = report_path.read_text(encoding="utf-8")
     assert "Full agent" in text and "Plain LLM" in text and "100%" in text
     assert errors_path.exists()
+
+
+def test_unanswered_questions_are_left_out_and_a_run_stops(tmp_path):
+    from bharat.eval.run import STOP_AFTER, _load, summarise
+
+    llm = FakeLLM({"plain": [{"status": "answer", "value": 3077.71}]})
+    run("plain", "dev", llm, results=tmp_path)  # one answer, then no replies left
+    lines = (tmp_path / "plain_dev.jsonl").read_text("utf-8").splitlines()
+    assert len(lines) == 1 + STOP_AFTER  # it stopped instead of failing all 100
+    row = summarise(_load(tmp_path))[0]
+    assert row["n"] == 1 and row["pending"] == STOP_AFTER and row["correct"] == 1

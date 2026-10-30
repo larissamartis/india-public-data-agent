@@ -6,7 +6,14 @@ import streamlit as st
 
 from bharat.app.ui import BRAND, card, finish, header, paginate, show_chart, table
 from bharat.eval.questions import load_questions
-from bharat.eval.run import RESULTS, _load, by_question_type, summarise, test_run_count
+from bharat.eval.run import (
+    RESULTS,
+    _load,
+    _pending,
+    by_question_type,
+    summarise,
+    test_run_count,
+)
 
 header(
     "Benchmark results",
@@ -29,6 +36,15 @@ else:
     split = splits[0]
     st.markdown(f'<p class="small">{SPLIT_NAMES[split]}</p>', unsafe_allow_html=True)
 shown = [r for r in rows if r["split"] == split]
+pending = {r["name"]: r["pending"] for r in shown if r["pending"]}
+if pending:
+    st.warning(
+        "Some questions are not answered yet, because the free model quota ran out during the "
+        "run: "
+        + ", ".join(f"{name} ({count})" for name, count in pending.items())
+        + ". They are left out of these scores and answered on the next run, so compare setups "
+        "with care until then."
+    )
 
 for column, row in zip(st.columns(len(shown)), shown, strict=True):
     with column, card(f"setup-{row['setup']}"):
@@ -36,7 +52,9 @@ for column, row in zip(st.columns(len(shown)), shown, strict=True):
         st.markdown(f'<div class="big-number">{row["rate"]:.0%}</div>', unsafe_allow_html=True)
         st.markdown(
             f'<p class="small">{row["correct"]} of {row["n"]} correct · 95% range '
-            f"{row['low']:.0%}–{row['high']:.0%}</p>",
+            f"{row['low']:.0%}–{row['high']:.0%}"
+            + (f" · {row['pending']} not yet answered" if row["pending"] else "")
+            + "</p>",
             unsafe_allow_html=True,
         )
 
@@ -137,7 +155,9 @@ with card("questions"):
             "Question": text.get(r["id"], ""),
             "Expected": r["score"]["expected"],
             "Got": r["score"]["status"],
-            "Correct": "Yes" if r["score"]["correct"] else "No",
+            "Correct": "Not yet answered"
+            if _pending(r)
+            else ("Yes" if r["score"]["correct"] else "No"),
             "Where it went wrong": r["score"]["failed_step"] or "",
         }
         for r in sorted(records, key=lambda r: r["id"])

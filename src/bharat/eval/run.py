@@ -45,14 +45,15 @@ def _latest(path: Path) -> dict[str, dict]:
     return {record["id"]: record for record in records}
 
 
+def _pending(record: dict) -> bool:
+    """Every LLM call failed (no key, rate limit, wrong model name): the question was never
+    really answered, so it is retried on the next run and left out of the scores."""
+    return record["output"]["status"] == "error" and record["output"]["stage"] == "llm"
+
+
 def _done(path: Path) -> set[str]:
-    """Questions with a real answer. Ones that stopped because every LLM call failed (no key,
-    rate limit, wrong model name) are retried on the next run rather than counted."""
-    return {
-        qid
-        for qid, record in _latest(path).items()
-        if not (record["output"]["status"] == "error" and record["output"]["stage"] == "llm")
-    }
+    """Questions with a real answer."""
+    return {qid for qid, record in _latest(path).items() if not _pending(record)}
 
 
 def count_test_run(setup: str, results: Path = RESULTS) -> int:
@@ -65,6 +66,9 @@ def count_test_run(setup: str, results: Path = RESULTS) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
     return data["count"]
+
+
+STOP_AFTER = 5  # questions in a row with no LLM reply before a run stops
 
 
 def run(
@@ -88,14 +92,24 @@ def run(
     agent = None
     if setup != "plain":
         agent = agent_factory(llm, metrics_layer=setup == "full")
+    failed_in_a_row = 0
     with path.open("a", encoding="utf-8") as handle:
         for q in todo:
+            if failed_in_a_row >= STOP_AFTER:
+                log.warning(
+                    "%s: %s questions in a row got no LLM reply (quota used up?); stopping, "
+                    "the next run resumes",
+                    setup,
+                    STOP_AFTER,
+                )
+                break
             out: Output = plain(llm, q) if setup == "plain" else run_agent(agent, setup, q)
             result = score(q, out, gold[q.id])
             handle.write(
                 json.dumps({"id": q.id, "output": asdict(out), "score": asdict(result)}) + "\n"
             )
             handle.flush()
+            failed_in_a_row = failed_in_a_row + 1 if _pending({"output": asdict(out)}) else 0
             log.info(
                 "%s %s %s: %s",
                 setup,
@@ -132,9 +146,10 @@ def summarise(data: dict[tuple[str, str], list[dict]]) -> list[dict]:
     for (setup, split), records in sorted(
         data.items(), key=lambda kv: (kv[0][1], SETUPS.index(kv[0][0]) if kv[0][0] in SETUPS else 9)
     ):
-        n = len(records)
-        scores = [r["score"] for r in records]
-        outs = [r["output"] for r in records]
+        answered = [r for r in records if not _pending(r)]
+        n = len(answered)
+        scores = [r["score"] for r in answered]
+        outs = [r["output"] for r in answered] or [{"llm_calls": 0, "seconds": 0, "fallbacks": 0}]
         correct = sum(s["correct"] for s in scores)
         low, high = wilson(correct, n)
         answerable = [s for s in scores if s["expected"] == "answer"]
@@ -144,14 +159,15 @@ def summarise(data: dict[tuple[str, str], list[dict]]) -> list[dict]:
                 "name": SETUP_NAMES.get(setup, setup),
                 "split": split,
                 "n": n,
+                "pending": len(records) - n,
                 "correct": correct,
-                "rate": correct / n,
+                "rate": correct / n if n else 0.0,
                 "low": low,
                 "high": high,
                 "wrong_answers": sum(s["wrong_answer"] for s in scores),
                 "over_refusals": sum(s["over_refusal"] for s in answerable),
                 "answerable": len(answerable),
-                "caveats_rate": sum(s["caveats_ok"] for s in scores) / n,
+                "caveats_rate": sum(s["caveats_ok"] for s in scores) / n if n else 0.0,
                 "calls": statistics.mean(o["llm_calls"] for o in outs),
                 "median_seconds": statistics.median(o["seconds"] for o in outs),
                 "fallbacks": sum(o["fallbacks"] for o in outs),
@@ -168,6 +184,8 @@ def by_question_type(
     for row in summarise(data):
         groups: dict[str, list[bool]] = defaultdict(list)
         for record in data[(row["setup"], row["split"])]:
+            if _pending(record):
+                continue
             groups[record["score"]["type"]].append(record["score"]["correct"])
         found[(row["setup"], row["split"])] = groups
     return found
@@ -186,14 +204,17 @@ def report(results: Path = RESULTS) -> tuple[Path, Path]:
         f"- Test-split runs so far: {test_runs}",
         "- Correct = right status, right figures within tolerance, and every required caveat.",
         "- Intervals are 95% Wilson score intervals.",
+        "- Not yet answered = every model call failed (free quota used up); these questions are"
+        " left out of the scores and retried on the next run.",
         "",
-        "| setup | split | n | correct (95% CI) | wrong answers | over-refusals | caveats present |"
-        " LLM calls / question | median seconds | fallbacks |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| setup | split | n | not yet answered | correct (95% CI) | wrong answers |"
+        " over-refusals | caveats present | LLM calls / question | median seconds | fallbacks |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for row in summarise(data):
         lines.append(
-            f"| {row['name']} | {row['split']} | {row['n']} | {_pct(row['rate'])} "
+            f"| {row['name']} | {row['split']} | {row['n']} | {row['pending']} | "
+            f"{_pct(row['rate'])} "
             f"({_pct(row['low'])}–{_pct(row['high'])}) | {row['wrong_answers']} | "
             f"{row['over_refusals']} of {row['answerable']} | {_pct(row['caveats_rate'])} | "
             f"{row['calls']:.1f} | {row['median_seconds']:.1f} | {row['fallbacks']} |"
@@ -225,10 +246,12 @@ def report(results: Path = RESULTS) -> tuple[Path, Path]:
         "",
     ]
     for (setup, split), rows in sorted(data.items()):
-        failed = [r for r in rows if not r["score"]["correct"]]
+        answered = [r for r in rows if not _pending(r)]
+        failed = [r for r in answered if not r["score"]["correct"]]
         counts = Counter(r["score"]["failed_step"] for r in failed)
         errors += [
-            f"## {SETUP_NAMES.get(setup, setup)} – {split} ({len(failed)} of {len(rows)} wrong)",
+            f"## {SETUP_NAMES.get(setup, setup)} – {split} "
+            f"({len(failed)} of {len(answered)} wrong)",
             "",
         ]
         errors += [f"- {label}: {count}" for label, count in counts.most_common()]
