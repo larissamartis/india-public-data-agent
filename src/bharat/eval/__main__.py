@@ -15,6 +15,22 @@ from pathlib import Path
 from bharat.eval.gold import SERVING_DB, write_gold
 
 
+def _summarise_llm(llm) -> None:
+    """Post which provider answered how often, and why calls failed, as a run notice."""
+    import os
+    from collections import Counter
+
+    used = Counter(c.provider for c in llm.calls)
+    failures = Counter(f[:240] for f in llm.failures)
+    lines = [f"calls answered: {dict(used)}", f"provider failures: {len(llm.failures)}"]
+    lines += [f"{n} x {text}" for text, n in failures.most_common(6)]
+    text = "\n".join(lines)
+    print(text)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        body = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
+        print(f"::notice title=LLM providers::{body}", flush=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m bharat.eval")
     parser.add_argument("command", choices=["gold", "run", "report"])
@@ -33,8 +49,11 @@ def main(argv: list[str] | None = None) -> int:
         from bharat.eval.run import SETUPS, run
 
         llm = OpenAICompatibleLLM()
-        for setup in SETUPS if args.setup == "all" else (args.setup,):
-            print(f"wrote {run(setup, args.split, llm, limit=args.limit)}")
+        try:
+            for setup in SETUPS if args.setup == "all" else (args.setup,):
+                print(f"wrote {run(setup, args.split, llm, limit=args.limit)}")
+        finally:
+            _summarise_llm(llm)
     else:
         from bharat.eval.run import report
 

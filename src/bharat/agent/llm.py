@@ -79,6 +79,7 @@ class OpenAICompatibleLLM(LLMBase):
         self.providers = providers
         self.http = http or httpx.Client(timeout=timeout)
         self.sleep = sleep
+        self.failures: list[str] = []  # every provider failure, for the run summary
         self.min_interval = float(os.environ.get("LLM_MIN_INTERVAL", "0"))
         self.rounds = max(1, int(os.environ.get("LLM_RETRY_ROUNDS", "1")))
         self._last_call: dict[str, float] = {}
@@ -122,7 +123,11 @@ class OpenAICompatibleLLM(LLMBase):
                 content = response.json()["choices"][0]["message"]["content"]
                 result = parse_json(content)
             except (httpx.HTTPError, KeyError, IndexError, ValueError) as error:
-                errors.append(f"{provider.name}: {type(error).__name__}: {error}")
+                detail = f"{type(error).__name__}: {error}"
+                if isinstance(error, httpx.HTTPStatusError):
+                    detail += f" | {error.response.text[:300]}"
+                errors.append(f"{provider.name}: {detail}")
+                self.failures.append(f"{provider.name} {provider.model}: {detail[:400]}")
                 log.warning("%s failed on %s: %s", provider.name, step, error)
                 continue
             self.calls.append(
