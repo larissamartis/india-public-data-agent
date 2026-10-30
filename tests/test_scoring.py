@@ -142,9 +142,11 @@ def test_run_and_report_end_to_end(tmp_path):
         results=tmp_path,
         agent_factory=lambda llm, **kw: Agent(llm, **kw),
     )
-    run("plain", "dev", llm, limit=1, results=tmp_path)  # resume: D001 is done, nothing new
-    lines = (tmp_path / "plain_dev.jsonl").read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 1 and json.loads(lines[0])["score"]["correct"]
+    run("plain", "dev", llm, limit=1, results=tmp_path)  # resumes after D001, with D002
+    lines = [json.loads(x) for x in (tmp_path / "plain_dev.jsonl").read_text("utf-8").splitlines()]
+    assert [x["id"] for x in lines] == ["D001", "D002"]
+    assert lines[0]["score"]["correct"]
+    assert lines[1]["output"]["status"] == "error"  # the fake had no reply left for D002
     full = json.loads((tmp_path / "full_dev.jsonl").read_text(encoding="utf-8"))
     assert full["score"]["correct"]
     report_path, errors_path = report(tmp_path)
