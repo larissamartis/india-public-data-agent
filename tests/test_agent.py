@@ -365,3 +365,31 @@ def test_llm_falls_back_to_the_second_provider(monkeypatch):
     )
     assert llm.complete_json("answer", "s", "u") == {"answer": "ok"}
     assert llm.calls[0].provider == "second" and llm.calls[0].fallback
+
+
+def test_failed_provider_rests_then_is_tried_again(monkeypatch):
+    asked: list[str] = []
+    now = [0.0]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        asked.append(request.url.host)
+        if "first" in str(request.url):
+            return httpx.Response(503, json={"error": "overloaded"})
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"a": 1}'}}]})
+
+    monkeypatch.setenv("FIRST_KEY", "x")
+    monkeypatch.setenv("SECOND_KEY", "y")
+    monkeypatch.setenv("LLM_COOLDOWN", "120")
+    llm = OpenAICompatibleLLM(
+        providers=(
+            Provider("first", "https://first.test/v1", "m1", "FIRST_KEY"),
+            Provider("second", "https://second.test/v1", "m2", "SECOND_KEY"),
+        ),
+        http=httpx.Client(transport=httpx.MockTransport(handler)),
+        clock=lambda: now[0],
+    )
+    llm.complete_json("answer", "s", "u")
+    llm.complete_json("answer", "s", "u")  # first is resting: straight to second
+    now[0] = 200.0
+    llm.complete_json("answer", "s", "u")  # rest over: first is tried again
+    assert asked == ["first.test", "second.test", "second.test", "first.test", "second.test"]

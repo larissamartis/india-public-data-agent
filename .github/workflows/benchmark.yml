@@ -51,6 +51,8 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           LLM_MIN_INTERVAL: "4"
           LLM_RETRY_ROUNDS: "3"
+          LLM_TIMEOUT: "30"
+          LLM_COOLDOWN: "180"
           SETUP: ${{ inputs.setup }}
           SPLIT: ${{ inputs.split }}
           LIMIT: ${{ inputs.limit }}

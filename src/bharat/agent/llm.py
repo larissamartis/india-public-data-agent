@@ -69,20 +69,31 @@ class OpenAICompatibleLLM(LLMBase):
         self,
         providers: tuple[Provider, ...] = PROVIDERS,
         http: httpx.Client | None = None,
-        timeout: float = 60.0,
+        timeout: float | None = None,
         sleep: Callable[[float], None] = time.sleep,
+        clock: Callable[[], float] = time.monotonic,
     ):
         """Free tiers limit requests per minute. LLM_MIN_INTERVAL spaces calls to each
         provider; LLM_RETRY_ROUNDS retries the whole provider list after a wait when every
-        provider failed (for example all rate-limited)."""
+        provider failed (for example all rate-limited). LLM_TIMEOUT caps one call, and a
+        provider that just failed rests for LLM_COOLDOWN seconds while another one answers,
+        so an overloaded provider doesn't cost a timeout on every call."""
         super().__init__()
         self.providers = providers
+        timeout = timeout or float(os.environ.get("LLM_TIMEOUT", "60"))
         self.http = http or httpx.Client(timeout=timeout)
         self.sleep = sleep
+        self.clock = clock
         self.failures: list[str] = []  # every provider failure, for the run summary
         self.min_interval = float(os.environ.get("LLM_MIN_INTERVAL", "0"))
         self.rounds = max(1, int(os.environ.get("LLM_RETRY_ROUNDS", "1")))
+        self.cooldown = float(os.environ.get("LLM_COOLDOWN", "0"))
         self._last_call: dict[str, float] = {}
+        self._failed_at: dict[str, float] = {}
+
+    def _resting(self, provider: Provider) -> bool:
+        failed = self._failed_at.get(provider.name)
+        return failed is not None and self.clock() - failed < self.cooldown
 
     def complete_json(self, step: str, system: str, user: str) -> dict:
         errors: list[str] = []
@@ -95,11 +106,14 @@ class OpenAICompatibleLLM(LLMBase):
         raise LLMError("; ".join(errors) or "no providers")
 
     def _try_providers(self, step: str, system: str, user: str, errors: list[str]) -> dict | None:
+        awake = [p for p in self.providers if os.environ.get(p.key_env) and not self._resting(p)]
         for index, provider in enumerate(self.providers):
             key = os.environ.get(provider.key_env)
             if not key:
                 errors.append(f"{provider.name}: no {provider.key_env}")
                 continue
+            if awake and provider not in awake:
+                continue  # resting after a failure; another provider is awake
             wait = self.min_interval - (time.monotonic() - self._last_call.get(provider.name, -1e9))
             if wait > 0:
                 self.sleep(wait)
@@ -128,6 +142,7 @@ class OpenAICompatibleLLM(LLMBase):
                     detail += f" | {error.response.text[:300]}"
                 errors.append(f"{provider.name}: {detail}")
                 self.failures.append(f"{provider.name} {provider.model}: {detail[:400]}")
+                self._failed_at[provider.name] = self.clock()
                 log.warning("%s failed on %s: %s", provider.name, step, error)
                 continue
             self.calls.append(
