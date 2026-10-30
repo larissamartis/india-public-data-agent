@@ -37,11 +37,21 @@ def _gold() -> dict:
     return json.loads((EVAL_DIR / "gold.json").read_text(encoding="utf-8"))
 
 
-def _done(path: Path) -> set[str]:
+def _latest(path: Path) -> dict[str, dict]:
+    """The latest record per question (a retried question appears more than once)."""
     if not path.exists():
-        return set()
+        return {}
+    records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+    return {record["id"]: record for record in records}
+
+
+def _done(path: Path) -> set[str]:
+    """Questions with a real answer. Ones that stopped because every LLM call failed (no key,
+    rate limit, wrong model name) are retried on the next run rather than counted."""
     return {
-        json.loads(line)["id"] for line in path.read_text(encoding="utf-8").splitlines() if line
+        qid
+        for qid, record in _latest(path).items()
+        if not (record["output"]["status"] == "error" and record["output"]["stage"] == "llm")
     }
 
 
@@ -103,9 +113,7 @@ def _load(results: Path) -> dict[tuple[str, str], list[dict]]:
     found: dict[tuple[str, str], list[dict]] = {}
     for path in sorted(results.glob("*_*.jsonl")):
         setup, split = path.stem.rsplit("_", 1)
-        found[(setup, split)] = [
-            json.loads(line) for line in path.read_text("utf-8").splitlines() if line
-        ]
+        found[(setup, split)] = list(_latest(path).values())
     return found
 
 

@@ -147,6 +147,11 @@ def test_run_and_report_end_to_end(tmp_path):
     assert [x["id"] for x in lines] == ["D001", "D002"]
     assert lines[0]["score"]["correct"]
     assert lines[1]["output"]["status"] == "error"  # the fake had no reply left for D002
+    llm.script["plain"] = [{"status": "answer", "value": 1.0}]
+    run("plain", "dev", llm, limit=1, results=tmp_path)  # an LLM failure is retried
+    from bharat.eval.run import _latest
+
+    assert _latest(tmp_path / "plain_dev.jsonl")["D002"]["output"]["status"] == "answer"
     full = json.loads((tmp_path / "full_dev.jsonl").read_text(encoding="utf-8"))
     assert full["score"]["correct"]
     report_path, errors_path = report(tmp_path)
