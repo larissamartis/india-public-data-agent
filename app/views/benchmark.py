@@ -4,7 +4,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from bharat.app.ui import BRAND, MUTED, card, header, paginate, show_chart, table
+from bharat.app.ui import BRAND, card, finish, header, paginate, show_chart, table
 from bharat.eval.questions import load_questions
 from bharat.eval.run import RESULTS, _load, by_question_type, summarise, test_run_count
 
@@ -44,7 +44,7 @@ frame = pd.DataFrame(shown)
 order = list(frame["name"])
 bars = (
     alt.Chart(frame)
-    .mark_bar(color=BRAND, cornerRadiusEnd=3, size=26)
+    .mark_bar(color="#9DB6D6", cornerRadiusEnd=3, size=24)
     .encode(
         y=alt.Y("name:N", sort=order, title=None),
         x=alt.X(
@@ -62,12 +62,17 @@ bars = (
 )
 ranges = (
     alt.Chart(frame)
-    .mark_rule(color=MUTED, strokeWidth=2)
-    .encode(y=alt.Y("name:N", sort=order), x="low:Q", x2="high:Q")
+    .mark_errorbar(color=BRAND, thickness=2.5, ticks=alt.TickConfig(size=14))
+    .encode(y=alt.Y("name:N", sort=order), x=alt.X("low:Q", title="Share correct"), x2="high:Q")
+)
+points = (
+    alt.Chart(frame)
+    .mark_point(color=BRAND, filled=True, size=90, opacity=1)
+    .encode(y=alt.Y("name:N", sort=order), x="rate:Q")
 )
 with card("chart"):
-    st.markdown("**Share correct, with 95% Wilson interval**")
-    show_chart((bars + ranges).properties(height=60 * len(frame)).configure_view(stroke=None))
+    st.markdown("**Share correct** (bar and dot), with the 95% Wilson range (line)")
+    show_chart(finish((bars + ranges + points).properties(height=64 * len(frame))))
     if split == "test":
         st.caption(f"The test set has been run {test_run_count(RESULTS)} times in total.")
 
@@ -79,20 +84,22 @@ with card("details"):
                 "Setup": frame["name"],
                 "Questions": frame["n"],
                 "Correct": frame["correct"],
-                "Wrong answers": frame["wrong_answers"],
-                "Refused answerable questions": frame["over_refusals"].astype(str)
+                "Wrong": frame["wrong_answers"],
+                "Over-refused": frame["over_refusals"].astype(str)
                 + " of "
                 + frame["answerable"].astype(str),
-                "Caveats present": frame["caveats_rate"].map("{:.0%}".format),
-                "Model calls per question": frame["calls"].round(1),
-                "Median seconds": frame["median_seconds"].round(1),
-                "Fallbacks to second model": frame["fallbacks"],
+                "Caveats": frame["caveats_rate"].map("{:.0%}".format),
+                "Calls each": frame["calls"].round(1),
+                "Median s": frame["median_seconds"].round(1),
+                "Fallbacks": frame["fallbacks"],
             }
         )
     )
     st.caption(
-        "Wrong answers are confident answers with the wrong figures; refusing an answerable "
-        "question is counted separately. A fallback means the first free model was busy."
+        "Wrong: confident answers with the wrong figures. Over-refused: answerable questions "
+        "it refused. Caveats: answers carrying every required warning. Calls each: model "
+        "calls per question. Median s: median seconds per question. Fallbacks: calls the "
+        "second free model answered because the first was busy."
     )
 
 types = by_question_type(data)

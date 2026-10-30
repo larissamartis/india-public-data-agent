@@ -3,7 +3,7 @@
 import altair as alt
 import streamlit as st
 
-from bharat.app.ui import BRAND, card, header, paginate, show_chart, table
+from bharat.app.ui import BRAND, GRAIN_NAMES, card, finish, header, paginate, show_chart, table
 from bharat.app.ui import query as _query
 
 header(
@@ -64,43 +64,61 @@ lsa = _query(
 ).iloc[0]
 with card("metrics"):
     st.markdown("**Measures**")
-    table(metrics)
+    metrics["Time step"] = metrics["Time step"].map(lambda g: GRAIN_NAMES.get(g, g))
+    table(metrics, height=36 * (len(metrics) + 1) + 4)
     if lsa["n"]:
         st.caption(
             f"Mobile subscribers are published by TRAI for {int(lsa['n'])} telecom service areas, "
             f"not states, from {lsa['first']} to {lsa['last']}."
         )
 
+# Share of each measure's periods that a state has, so gaps stand out whatever the time step.
 heat = _query(
     """
-    select c.state_name as state, m.label as measure, sum(c.periods) as periods
-    from coverage c join dim_metric m using (metric_id)
-    where c.state_code > 0
-    group by all
+    with per_state as (
+        select c.state_name as state, m.label as measure, sum(c.periods) as periods
+        from coverage c join dim_metric m using (metric_id)
+        where c.state_code > 0
+        group by all
+    )
+    select *, periods / max(periods) over (partition by measure) as share from per_state
     """
 )
 with card("coverage"):
-    st.markdown("**Coverage by state** (number of periods with a figure)")
+    st.markdown("**Coverage by state** (share of each measure's periods with a figure)")
     if heat.empty:
         st.caption("No state figures loaded.")
     else:
         chart = (
             alt.Chart(heat)
-            .mark_rect(cornerRadius=2)
+            .mark_rect(cornerRadius=2, stroke="#FFFFFF", strokeWidth=1)
             .encode(
-                x=alt.X("measure:N", title=None, axis=alt.Axis(labelAngle=-35, labelLimit=180)),
-                y=alt.Y("state:N", title=None, sort="ascending"),
-                color=alt.Color(
-                    "periods:Q",
-                    title="Periods",
-                    scale=alt.Scale(range=["#DCE6F2", BRAND]),
+                x=alt.X(
+                    "measure:N",
+                    title=None,
+                    axis=alt.Axis(orient="top", labelAngle=-40, labelOverlap=False),
                 ),
-                tooltip=["state:N", "measure:N", "periods:Q"],
+                y=alt.Y("state:N", title=None, sort="ascending", axis=alt.Axis(labelOverlap=False)),
+                color=alt.Color(
+                    "share:Q",
+                    title="Share",
+                    scale=alt.Scale(domain=[0, 1], range=["#E4ECF5", BRAND]),
+                    legend=alt.Legend(format="%"),
+                ),
+                tooltip=[
+                    alt.Tooltip("state:N", title="State or UT"),
+                    alt.Tooltip("measure:N", title="Measure"),
+                    alt.Tooltip("periods:Q", title="Periods"),
+                    alt.Tooltip("share:Q", title="Share", format=".0%"),
+                ],
             )
-            .properties(height=16 * heat["state"].nunique())
-            .configure_view(stroke=None)
+            .properties(height=20 * heat["state"].nunique())
         )
-        show_chart(chart)
+        show_chart(finish(chart))
+        st.caption(
+            "Lighter cells are states with fewer periods than others, for example because the "
+            "state or UT was formed later, or the source doesn't publish it."
+        )
 
 revisions = _query(
     """

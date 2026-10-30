@@ -158,6 +158,23 @@ def chart_from_spec(spec: dict, columns: list[str], rows: list[list]) -> alt.Cha
         )
     else:
         return None
-    return chart.configure_view(stroke=None).configure_axis(
-        labelColor=MUTED, titleColor=MUTED, gridColor="#E9EDF2"
+    return finish(chart)
+
+
+def finish(chart: alt.Chart) -> alt.Chart:
+    """The shared chart look: white background, quiet axes, no border, full labels."""
+    return (
+        chart.configure(background="#FFFFFF")
+        .configure_view(stroke=None)
+        .configure_axis(labelColor=MUTED, titleColor=MUTED, gridColor="#E9EDF2", labelLimit=320)
+        .configure_legend(labelColor=MUTED, titleColor=MUTED)
     )
+
+
+GRAIN_NAMES = {
+    "month": "Monthly",
+    "month_end": "Month end",
+    "fy": "Financial year",
+    "end_march": "End of March",
+    "year_jul1": "1 July each year",
+}
