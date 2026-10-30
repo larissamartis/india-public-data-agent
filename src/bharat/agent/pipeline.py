@@ -25,8 +25,15 @@ from pathlib import Path
 
 import duckdb
 
-from bharat.agent.catalog import AGENT_TABLES, SCHEMA, Catalog, connect
-from bharat.agent.gate import GateResult, check
+from bharat.agent.catalog import (
+    AGENT_TABLES,
+    BASE_SCHEMA,
+    BASE_TABLES,
+    SCHEMA,
+    Catalog,
+    connect,
+)
+from bharat.agent.gate import Area, GateResult, check
 from bharat.agent.llm import LLMBase, LLMError
 from bharat.agent.number_check import extract_numbers, unsupported_numbers
 from bharat.agent.plan import PLAN_SYSTEM, Plan, PlanError, parse_plan
@@ -69,6 +76,15 @@ class AgentResult:
     template_answer: bool = False
 
 
+def _no_gate(plan: Plan) -> GateResult:
+    """The ablation: only the LLM's own plan decides; names are passed on as written."""
+    if plan.status == "unclear":
+        return GateResult("clarify", message=plan.clarifying_question or "Could you clarify?")
+    if plan.status == "cannot_answer":
+        return GateResult("refuse", reason=plan.reason or "not_loaded", message=plan.interpretation)
+    return GateResult("proceed", areas=[Area(name, "as written") for name in plan.areas])
+
+
 class Agent:
     def __init__(
         self,
@@ -76,12 +92,17 @@ class Agent:
         con: duckdb.DuckDBPyConnection | None = None,
         cache_dir: Path | None = None,
         today: date | None = None,
+        metrics_layer: bool = True,
     ):
+        """`metrics_layer=False` is the ablation: no metric definitions, coverage gate,
+        caveat rules or ratio check; the SQL guard and number check stay on."""
         self.llm = llm
         self.con = con or connect()
         self.catalog = Catalog(self.con)
         self.cache = AnswerCache(cache_dir)
         self.today = today
+        self.metrics_layer = metrics_layer
+        self.tables = AGENT_TABLES if metrics_layer else BASE_TABLES
 
     # ------------------------------------------------------------------ public
 
@@ -113,7 +134,7 @@ class Agent:
         plan = self._plan(question, result)
         if plan is None:
             return
-        gate = check(plan, self.catalog, today=self.today)
+        gate = check(plan, self.catalog, today=self.today) if self.metrics_layer else _no_gate(plan)
         result.trace.append({"step": "coverage", "status": gate.status, "reason": gate.reason})
         if gate.status != "proceed":
             result.status = "clarify" if gate.status == "clarify" else "refuse"
@@ -133,6 +154,10 @@ class Agent:
 
         result.answer, result.template_answer = self._answer(question, plan, columns, rows, result)
         result.status = "answer"
+        chart = chart_for(plan.task, columns, rows, plan.interpretation or question)
+        result.chart = asdict(chart) if chart else None
+        if not self.metrics_layer:
+            return  # no caveat rules or source lookup without the metrics layer
 
         jk = (
             any(a.state_code == 1 for a in gate.areas)
@@ -150,12 +175,12 @@ class Agent:
         )
         result.caveats = [{"id": c, "text": CAVEAT_TEXT[c]} for c in ids]
         result.sources = self._sources(plan.metrics)
-        chart = chart_for(plan.task, columns, rows, plan.interpretation or question)
-        result.chart = asdict(chart) if chart else None
 
     def _plan(self, question: str, result: AgentResult) -> Plan | None:
         system = PLAN_SYSTEM.format(
-            metrics=self.catalog.metric_table(),
+            metrics=self.catalog.metric_table()
+            if self.metrics_layer
+            else self.catalog.metric_ids(),
             service_areas=", ".join(self.catalog.service_areas),
         )
         reply = self.llm.complete_json("plan", system, f"Question: {question}")
@@ -186,9 +211,13 @@ class Agent:
             "measures; do not compute the correlation in SQL",
         }
         shape = shapes.get(plan.task, "one row with one column named value")
+        if self.metrics_layer:
+            tables = f"{SCHEMA}\nMetrics:\n{self.catalog.metric_table()}"
+        else:
+            tables = f"{BASE_SCHEMA}\nmetric_id values:\n{self.catalog.metric_ids()}"
         system = (
             "You write one DuckDB SELECT statement over these tables only:\n"
-            f"{SCHEMA}\nMetrics:\n{self.catalog.metric_table()}\n\n"
+            f"{tables}\n\n"
             "Worked examples:\n\n"
             f"{examples}\n\n"
             'Reply with JSON: {"sql": "..."}. Use only the metrics in the plan.'
@@ -225,16 +254,22 @@ class Agent:
         return None
 
     def _run_sql(self, sql: str, plan: Plan):
-        guard = check_sql(sql, AGENT_TABLES)
+        guard = check_sql(sql, self.tables)
         if not guard.ok:
             return f"guard: {'; '.join(guard.errors)}", [], [], None
-        used = {m for m in re.findall(r"'([a-z_]+)'", sql) if m in self.catalog.metrics}
-        extra = used - set(plan.metrics)
-        if extra:
-            return f"uses metrics not in the plan: {sorted(extra)}", [], [], None
-        ratios = [m for m in used if self.catalog.metrics[m].combine_rule == "recompute"]
-        if ratios and re.search(r"\bavg\s*\(", sql, re.I):
-            return f"averages ratio metrics {ratios}; rebuild them from their parts", [], [], None
+        if self.metrics_layer:
+            used = {m for m in re.findall(r"'([a-z_]+)'", sql) if m in self.catalog.metrics}
+            extra = used - set(plan.metrics)
+            if extra:
+                return f"uses metrics not in the plan: {sorted(extra)}", [], [], None
+            ratios = [m for m in used if self.catalog.metrics[m].combine_rule == "recompute"]
+            if ratios and re.search(r"\bavg\s*\(", sql, re.I):
+                return (
+                    f"averages ratio metrics {ratios}; rebuild them from their parts",
+                    [],
+                    [],
+                    None,
+                )
         try:
             cursor = self.con.execute(guard.sql)
             rows = cursor.fetchall()
@@ -249,7 +284,8 @@ class Agent:
         table = "\n".join(
             [" | ".join(columns)] + [" | ".join(str(v) for v in r) for r in rows[:MAX_ROWS_TO_LLM]]
         )
-        units = ", ".join(f"{m}: {self.catalog.metrics[m].unit}" for m in plan.metrics)
+        known = [m for m in plan.metrics if m in self.catalog.metrics] if self.metrics_layer else []
+        units = ", ".join(f"{m}: {self.catalog.metrics[m].unit}" for m in known) or "not given"
         stats = f"\nComputed statistics: {json.dumps(result.stats)}" if result.stats else ""
         system = (
             "You write a short, plain-English answer (at most 80 words) for a general reader, "
@@ -278,7 +314,8 @@ class Agent:
         return self._template(plan, columns, rows, result), True
 
     def _template(self, plan, columns, rows, result) -> str:
-        unit = self.catalog.metrics[plan.metrics[0]].unit if plan.metrics else ""
+        first = self.catalog.metrics.get(plan.metrics[0]) if plan.metrics else None
+        unit = first.unit if first and self.metrics_layer else ""
         if result.stats and result.stats.get("pearson") is not None:
             s = result.stats
             return (

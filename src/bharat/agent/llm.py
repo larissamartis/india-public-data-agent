@@ -70,18 +70,39 @@ class OpenAICompatibleLLM(LLMBase):
         providers: tuple[Provider, ...] = PROVIDERS,
         http: httpx.Client | None = None,
         timeout: float = 60.0,
+        sleep: Callable[[float], None] = time.sleep,
     ):
+        """Free tiers limit requests per minute. LLM_MIN_INTERVAL spaces calls to each
+        provider; LLM_RETRY_ROUNDS retries the whole provider list after a wait when every
+        provider failed (for example all rate-limited)."""
         super().__init__()
         self.providers = providers
         self.http = http or httpx.Client(timeout=timeout)
+        self.sleep = sleep
+        self.min_interval = float(os.environ.get("LLM_MIN_INTERVAL", "0"))
+        self.rounds = max(1, int(os.environ.get("LLM_RETRY_ROUNDS", "1")))
+        self._last_call: dict[str, float] = {}
 
     def complete_json(self, step: str, system: str, user: str) -> dict:
-        errors = []
+        errors: list[str] = []
+        for round_number in range(self.rounds):
+            if round_number:
+                self.sleep(20.0 * round_number)
+            result = self._try_providers(step, system, user, errors)
+            if result is not None:
+                return result
+        raise LLMError("; ".join(errors) or "no providers")
+
+    def _try_providers(self, step: str, system: str, user: str, errors: list[str]) -> dict | None:
         for index, provider in enumerate(self.providers):
             key = os.environ.get(provider.key_env)
             if not key:
                 errors.append(f"{provider.name}: no {provider.key_env}")
                 continue
+            wait = self.min_interval - (time.monotonic() - self._last_call.get(provider.name, -1e9))
+            if wait > 0:
+                self.sleep(wait)
+            self._last_call[provider.name] = time.monotonic()
             started = time.monotonic()
             try:
                 response = self.http.post(
@@ -108,7 +129,7 @@ class OpenAICompatibleLLM(LLMBase):
                 CallRecord(step, provider.name, time.monotonic() - started, fallback=index > 0)
             )
             return result
-        raise LLMError("; ".join(errors) or "no providers")
+        return None
 
 
 def parse_json(text: str) -> dict:

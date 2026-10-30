@@ -1,0 +1,78 @@
+name: Benchmark
+
+# Click-to-run: answer the frozen benchmark questions with one or all setups, score them,
+# and commit the results and report. Runs resume: questions already answered are skipped,
+# and whatever finished is committed even if the run stops (for example on rate limits).
+on:
+  workflow_dispatch:
+    inputs:
+      setup:
+        description: Which setup to run
+        type: choice
+        options: [all, plain, no_metrics, full]
+        default: all
+      split:
+        description: dev (any time) or test (milestones only; every test run is counted)
+        type: choice
+        options: [dev, test]
+        default: dev
+      limit:
+        description: At most this many new questions per setup (0 = all)
+        type: string
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run
+        id: run
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_MIN_INTERVAL: "4"
+          LLM_RETRY_ROUNDS: "3"
+          SETUP: ${{ inputs.setup }}
+          SPLIT: ${{ inputs.split }}
+          LIMIT: ${{ inputs.limit }}
+        run: uv run python -m bharat.eval run --setup "$SETUP" --split "$SPLIT" --limit "$LIMIT"
+
+      - name: Report
+        if: always()
+        run: |
+          uv run python -m bharat.eval report > report.txt
+          body=$(sed -n '/^| setup/,/^$/p' eval/results/REPORT.md | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')
+          echo "::notice title=benchmark (${{ inputs.split }})::$body"
+          if [ "${{ steps.run.outcome }}" != "success" ]; then
+            echo "::warning title=benchmark::the run stopped early; results so far are kept and the next run resumes"
+          fi
+
+      - name: Commit results
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898748+github-actions[bot]@users.noreply.github.com"
+          git add eval/results eval/error_analysis.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "eval: benchmark results (${{ inputs.setup }}, ${{ inputs.split }}, run ${GITHUB_RUN_ID})"
+          git pull --rebase origin main
+          git push origin HEAD:main

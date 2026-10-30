@@ -50,6 +50,15 @@ persons. Never average a metric whose combine_rule is 'recompute' across states:
 from its parts (for example weight per-capita figures by population).
 """
 
+# The ablation without the metrics layer sees the tidy tables only: no metric definitions,
+# units, grains, combine rules or coverage.
+BASE_TABLES = frozenset({"fct_state_metric", "fct_national_metric", "fct_lsa_metric", "dim_state"})
+BASE_SCHEMA = "\n".join(
+    line
+    for line in SCHEMA.split("\n\n")[0].splitlines()
+    if not line.startswith(("dim_metric", "coverage"))
+)
+
 
 def connect(path: Path = SERVING_DB) -> duckdb.DuckDBPyConnection:
     con = duckdb.connect(
@@ -130,6 +139,10 @@ class Catalog:
                 f"- {m.metric_id}: {m.label} [{m.unit}; {m.grain}; {m.combine_rule}] {when}"
             )
         return "\n".join(lines)
+
+    def metric_ids(self) -> str:
+        """Bare metric ids, as the ablation without the metrics layer sees them."""
+        return "\n".join(f"- {m}" for m in self.metrics)
 
     def available_summary(self) -> str:
         """One line per source, for refusals that say what *is* available."""
