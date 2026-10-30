@@ -6,10 +6,10 @@ pytest.importorskip("streamlit")
 
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
-from bharat.agent.catalog import SERVING_DB  # noqa: E402
+from bharat.agent.catalog import SERVING_DB, connect  # noqa: E402
 from bharat.agent.llm import FakeLLM  # noqa: E402
 from bharat.agent.pipeline import Agent  # noqa: E402
-from bharat.app.ui import chart_from_spec, plain  # noqa: E402
+from bharat.app.ui import chart_from_spec, database, plain  # noqa: E402
 
 pytestmark = pytest.mark.skipif(not SERVING_DB.exists(), reason="no serving file")
 VIEWS = Path(__file__).resolve().parents[1] / "app" / "views"
@@ -37,12 +37,22 @@ SCRIPT = {
 }
 
 
+@pytest.fixture(scope="module")
+def con():
+    """Every connection is closed at the end, so later test files can open the file their way."""
+    connection = connect()
+    yield connection
+    connection.close()
+    database().close()
+    database.clear()
+
+
 def page(name: str) -> AppTest:
     return AppTest.from_file(str(VIEWS / f"{name}.py"), default_timeout=60)
 
 
 @pytest.mark.parametrize("name", ["benchmark", "sources", "method"])
-def test_page_renders(name):
+def test_page_renders(con, name):
     app = page(name).run()
     assert not app.exception, app.exception
 
@@ -51,9 +61,9 @@ def text_of(app: AppTest) -> str:
     return "\n".join(m.value for m in app.markdown)
 
 
-def ask(question: str, script: dict) -> AppTest:
+def ask(con, question: str, script: dict) -> AppTest:
     app = page("ask")
-    app.session_state["agent"] = Agent(FakeLLM(script), cache_dir=None)
+    app.session_state["agent"] = Agent(FakeLLM(script), con=con.cursor(), cache_dir=None)
     app.run()
     app.text_area(key="question").input(question)
     next(b for b in app.button if b.label == "Ask").click().run()
@@ -61,8 +71,8 @@ def ask(question: str, script: dict) -> AppTest:
     return app
 
 
-def test_ask_shows_answer_sql_caveat_and_source():
-    app = ask(KERALA, SCRIPT)
+def test_ask_shows_answer_sql_caveat_and_source(con):
+    app = ask(con, KERALA, SCRIPT)
     text = text_of(app)
     assert "3,077" in text
     assert "provisional" in text  # the GST caveat
@@ -70,7 +80,7 @@ def test_ask_shows_answer_sql_caveat_and_source():
     assert "fct_state_metric" in app.code[0].value
 
 
-def test_ask_explains_a_refusal():
+def test_ask_explains_a_refusal(con):
     script = {
         "plan": [
             {
@@ -82,12 +92,12 @@ def test_ask_explains_a_refusal():
             }
         ]
     }
-    app = ask("What is the literacy rate of Rajasthan?", script)
+    app = ask(con, "What is the literacy rate of Rajasthan?", script)
     assert "can't answer that from this data" in text_of(app)
     assert not app.code  # no SQL was run
 
 
-def test_ask_without_keys_says_so(monkeypatch):
+def test_ask_without_keys_says_so(con, monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     app = page("ask").run()
@@ -95,9 +105,9 @@ def test_ask_without_keys_says_so(monkeypatch):
     assert "API key" in app.warning[0].value
 
 
-def test_example_button_fills_the_question():
+def test_example_button_fills_the_question(con):
     app = page("ask")
-    app.session_state["agent"] = Agent(FakeLLM({}), cache_dir=None)
+    app.session_state["agent"] = Agent(FakeLLM({}), con=con.cursor(), cache_dir=None)
     app.run()
     app.button(key="example_3").click().run()
     assert app.text_area(key="question").value == "What is the literacy rate of Rajasthan?"

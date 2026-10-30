@@ -350,6 +350,7 @@ def test_a_second_connection_opens_and_stays_locked(con):
     assert other.execute("select current_setting('lock_configuration')").fetchall()[0][0]
     with pytest.raises(duckdb.Error):
         other.execute("set enable_external_access = true")
+    other.close()
 
 
 def test_parse_json_accepts_fenced_replies():
