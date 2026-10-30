@@ -28,7 +28,16 @@ jobs:
           uv run ruff format --check .
 
       - name: Test
-        run: uv run pytest
+        run: |
+          set -o pipefail
+          uv run pytest 2>&1 | tee pytest.log
+
+      - name: Report test output
+        if: failure()
+        run: |
+          [ -f pytest.log ] || exit 0
+          detail=$(tail -n 40 pytest.log | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error title=pytest::$detail"
 
       # The whole warehouse, built and tested on a tiny made-up bronze folder.
       - name: Warehouse on fixture data
