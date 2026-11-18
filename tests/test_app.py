@@ -66,7 +66,7 @@ def ask(con, question: str, script: dict) -> AppTest:
     app.session_state["agent"] = Agent(FakeLLM(script), con=con.cursor(), cache_dir=None)
     app.run()
     app.text_area(key="question").input(question)
-    next(b for b in app.button if b.label == "Ask").click().run()
+    next(b for b in app.button if b.label.startswith("Get the answer")).click().run()
     assert not app.exception, app.exception
     return app
 
@@ -109,8 +109,9 @@ def test_example_button_fills_the_question(con):
     app = page("ask")
     app.session_state["agent"] = Agent(FakeLLM({}), con=con.cursor(), cache_dir=None)
     app.run()
-    app.button(key="example_3").click().run()
+    app.button(key="example_5").click().run()
     assert app.text_area(key="question").value == "What is the literacy rate of Rajasthan?"
+    assert "You asked" in text_of(app)  # and it was asked straight away
 
 
 def test_plain_escapes_markdown_and_html():
