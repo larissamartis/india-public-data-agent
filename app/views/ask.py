@@ -161,7 +161,8 @@ def _asked(result: AgentResult) -> None:
 
 
 def _sources(result: AgentResult) -> None:
-    built = result.data_version.split("|")[0][:10] if result.data_version else ""
+    built_at = (result.data_version or "").split("|")[0]
+    built = pd.Timestamp(built_at) if built_at else None
     chips = "".join(
         f'<span class="source"><a href="{html.escape(s["url"])}" target="_blank">'
         f"{html.escape(s['name'])}</a> · {html.escape(s['publisher'])}</span>"
@@ -172,8 +173,11 @@ def _sources(result: AgentResult) -> None:
             f'<div class="label" style="margin-top:0.8rem">Where this comes from</div>{chips}',
             unsafe_allow_html=True,
         )
-    if built:
-        st.markdown(f'<p class="small">Data last updated {built}.</p>', unsafe_allow_html=True)
+    if built is not None:
+        st.markdown(
+            f'<p class="small">Data last updated {built.day} {built:%b %Y}.</p>',
+            unsafe_allow_html=True,
+        )
 
 
 def show(result: AgentResult) -> None:
@@ -181,7 +185,9 @@ def show(result: AgentResult) -> None:
         with card("answer"):
             _asked(result)
             st.markdown('<div class="label">Answer</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="answer">{plain(result.answer)}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="answer">{html.escape(result.answer)}</div>', unsafe_allow_html=True
+            )
             stats = result.stats or {}
             if stats.get("pearson") is not None and stats.get("spearman") is not None:
                 st.markdown(

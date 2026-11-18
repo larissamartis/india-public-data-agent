@@ -74,7 +74,7 @@ def ask(con, question: str, script: dict) -> AppTest:
 def test_ask_shows_answer_sql_caveat_and_source(con):
     app = ask(con, KERALA, SCRIPT)
     text = text_of(app)
-    assert "3,077" in text
+    assert "₹3,077.71 crore." in text  # shown as written, with no stray backslashes
     assert "provisional" in text  # the GST caveat
     assert "GST collections" in text  # the source
     assert "fct_state_metric" in app.code[0].value
