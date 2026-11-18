@@ -2,125 +2,42 @@
 
 Every incorrect answer, labelled by where it went wrong.
 
-## Full agent – dev (97 of 100 wrong)
+## Full agent – dev (16 of 73 wrong)
 
-- error instead of answer at llm: 72
-- error instead of refuse at llm: 19
-- error instead of clarify at llm: 3
+- refuse instead of answer at plan: 8
+- refuse instead of answer at coverage: 2
+- clarify instead of answer at plan: 2
+- error instead of answer at sql: 1
 - error instead of answer at plan: 1
 - missing caveat: 1
 - error instead of refuse at plan: 1
 
 | id | type | expected | got | label | missing caveats |
 |---|---|---|---|---|---|
-| D004 | single_fact | answer | error | error instead of answer at llm |  |
-| D005 | single_fact | answer | error | error instead of answer at llm |  |
-| D006 | single_fact | answer | error | error instead of answer at llm |  |
-| D007 | single_fact | answer | error | error instead of answer at llm |  |
-| D008 | single_fact | answer | error | error instead of answer at llm | projection |
-| D009 | single_fact | answer | error | error instead of answer at llm | projection |
-| D010 | single_fact | answer | error | error instead of answer at llm | service_area |
-| D011 | single_fact | answer | error | error instead of answer at llm |  |
-| D012 | single_fact | answer | error | error instead of answer at llm | projection |
-| D013 | single_fact | answer | error | error instead of answer at llm | provisional |
-| D014 | ranking | answer | error | error instead of answer at llm | provisional |
-| D015 | ranking | answer | error | error instead of answer at llm |  |
-| D016 | ranking | answer | error | error instead of answer at llm |  |
-| D017 | ranking | answer | error | error instead of answer at llm |  |
-| D018 | ranking | answer | error | error instead of answer at llm | service_area |
-| D019 | ranking | answer | error | error instead of answer at llm | projection |
-| D020 | ranking | answer | error | error instead of answer at llm |  |
-| D021 | ranking | answer | error | error instead of answer at llm |  |
-| D022 | ranking | answer | error | error instead of answer at llm |  |
-| D023 | ranking | answer | error | error instead of answer at llm |  |
-| D024 | change_over_time | answer | error | error instead of answer at llm | provisional |
-| D025 | change_over_time | answer | error | error instead of answer at llm |  |
-| D026 | change_over_time | answer | error | error instead of answer at llm |  |
-| D027 | change_over_time | answer | error | error instead of answer at llm |  |
-| D028 | change_over_time | answer | error | error instead of answer at llm | projection |
-| D029 | change_over_time | answer | error | error instead of answer at llm | service_area |
-| D030 | change_over_time | answer | error | error instead of answer at llm |  |
-| D031 | change_over_time | answer | error | error instead of answer at llm |  |
-| D032 | change_over_time | answer | error | error instead of answer at llm |  |
-| D033 | change_over_time | answer | error | error instead of answer at llm | provisional |
-| D034 | change_over_time | answer | error | error instead of answer at llm |  |
-| D035 | change_over_time | answer | error | error instead of answer at llm | projection |
-| D036 | change_over_time | answer | error | error instead of answer at llm | provisional |
-| D037 | scaled_comparison | answer | error | error instead of answer at llm |  |
-| D038 | scaled_comparison | answer | error | error instead of answer at llm |  |
-| D039 | scaled_comparison | answer | error | error instead of answer at llm | projection |
-| D040 | scaled_comparison | answer | error | error instead of answer at llm | projection |
-| D041 | scaled_comparison | answer | error | error instead of answer at llm | provisional, projection |
-| D042 | scaled_comparison | answer | error | error instead of answer at llm |  |
-| D043 | scaled_comparison | answer | error | error instead of answer at llm | projection |
-| D044 | scaled_comparison | answer | error | error instead of answer at llm | projection |
-| D045 | scaled_comparison | answer | error | error instead of answer at llm |  |
-| D046 | scaled_comparison | answer | error | error instead of answer at llm | projection |
-| D047 | combining_sources | answer | error | error instead of answer at llm | provisional |
-| D048 | combining_sources | answer | error | error instead of answer at llm | provisional |
-| D049 | combining_sources | answer | error | error instead of answer at llm |  |
-| D050 | combining_sources | answer | error | error instead of answer at llm | projection |
-| D051 | combining_sources | answer | error | error instead of answer at llm | service_area, projection |
-| D052 | combining_sources | answer | error | error instead of answer at llm | projection |
-| D053 | combining_sources | answer | error | error instead of answer at llm |  |
-| D054 | combining_sources | answer | error | error instead of answer at llm | provisional, projection |
-| D055 | combining_sources | answer | error | error instead of answer at llm | provisional, projection |
-| D056 | combining_sources | answer | error | error instead of answer at llm | projection |
-| D057 | trend | answer | error | error instead of answer at llm | provisional |
-| D058 | trend | answer | error | error instead of answer at llm | projection |
-| D059 | trend | answer | error | error instead of answer at llm |  |
-| D060 | trend | answer | error | error instead of answer at llm |  |
-| D061 | trend | answer | error | error instead of answer at llm | provisional |
-| D062 | trend | answer | error | error instead of answer at llm |  |
-| D063 | groups | answer | error | error instead of answer at llm | provisional |
-| D064 | groups | answer | error | error instead of answer at llm | projection |
-| D065 | groups | answer | error | error instead of answer at llm | recompute |
-| D066 | groups | answer | error | error instead of answer at llm | recompute, projection |
+| D006 | single_fact | answer | refuse | refuse instead of answer at plan |  |
+| D013 | single_fact | answer | refuse | refuse instead of answer at plan | provisional |
+| D024 | change_over_time | answer | refuse | refuse instead of answer at plan | provisional |
+| D033 | change_over_time | answer | refuse | refuse instead of answer at coverage | provisional |
+| D036 | change_over_time | answer | refuse | refuse instead of answer at plan | provisional |
+| D051 | combining_sources | answer | refuse | refuse instead of answer at plan |  |
+| D052 | combining_sources | answer | refuse | refuse instead of answer at coverage |  |
+| D054 | combining_sources | answer | refuse | refuse instead of answer at plan | provisional |
+| D063 | groups | answer | refuse | refuse instead of answer at plan | provisional |
+| D065 | groups | answer | clarify | clarify instead of answer at plan | recompute |
+| D066 | groups | answer | error | error instead of answer at sql | recompute, projection |
 | D067 | groups | answer | error | error instead of answer at plan |  |
-| D068 | groups | answer | error | error instead of answer at llm |  |
-| D069 | matching_trap | answer | error | error instead of answer at llm |  |
-| D070 | matching_trap | answer | error | error instead of answer at llm | projection |
-| D071 | matching_trap | answer | error | error instead of answer at llm |  |
-| D072 | matching_trap | refuse | error | error instead of refuse at llm | ladakh_in_jk |
-| D073 | matching_trap | answer | error | error instead of answer at llm | ladakh_in_jk |
-| D074 | matching_trap | answer | error | error instead of answer at llm | dnh_merged |
-| D075 | matching_trap | answer | error | error instead of answer at llm | state_formed |
-| D076 | matching_trap | refuse | error | error instead of refuse at llm | state_formed |
+| D068 | groups | answer | clarify | clarify instead of answer at plan |  |
+| D074 | matching_trap | answer | refuse | refuse instead of answer at plan | dnh_merged |
 | D077 | matching_trap | refuse | refuse | missing caveat | service_area |
-| D078 | matching_trap | refuse | error | error instead of refuse at llm |  |
-| D079 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D080 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D081 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D082 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D083 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D084 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D085 | cannot_answer | refuse | error | error instead of refuse at llm |  |
 | D086 | cannot_answer | refuse | error | error instead of refuse at plan |  |
-| D087 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D088 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D089 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D090 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D091 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D092 | causal_trap | answer | error | error instead of answer at llm | causation, projection |
-| D093 | causal_trap | refuse | error | error instead of refuse at llm | causation |
-| D094 | causal_trap | answer | error | error instead of answer at llm | causation, provisional, projection |
-| D095 | causal_trap | refuse | error | error instead of refuse at llm | causation |
-| D096 | causal_trap | refuse | error | error instead of refuse at llm | causation |
-| D097 | causal_trap | refuse | error | error instead of refuse at llm | causation, service_area |
-| D098 | unclear | clarify | error | error instead of clarify at llm |  |
-| D099 | unclear | clarify | error | error instead of clarify at llm |  |
-| D100 | unclear | clarify | error | error instead of clarify at llm |  |
 
-## Agent without metrics layer – dev (63 of 100 wrong)
+## Agent without metrics layer – dev (40 of 77 wrong)
 
 - missing caveat: 18
-- error instead of refuse at llm: 15
 - refuse instead of answer at plan: 11
-- error instead of answer at llm: 6
 - error instead of answer at sql: 4
 - clarify instead of answer at plan: 3
 - error instead of answer at plan: 2
-- error instead of clarify at llm: 2
 - wrong values at answer: 1
 - error instead of clarify at plan: 1
 
@@ -164,31 +81,8 @@ Every incorrect answer, labelled by where it went wrong.
 | D068 | groups | answer | clarify | clarify instead of answer at plan |  |
 | D069 | matching_trap | answer | clarify | clarify instead of answer at plan |  |
 | D070 | matching_trap | answer | refuse | refuse instead of answer at plan | projection |
-| D071 | matching_trap | answer | error | error instead of answer at llm |  |
-| D072 | matching_trap | refuse | error | error instead of refuse at llm | ladakh_in_jk |
-| D073 | matching_trap | answer | error | error instead of answer at llm | ladakh_in_jk |
-| D074 | matching_trap | answer | error | error instead of answer at llm | dnh_merged |
-| D075 | matching_trap | answer | error | error instead of answer at llm | state_formed |
-| D076 | matching_trap | refuse | error | error instead of refuse at llm | state_formed |
 | D077 | matching_trap | refuse | refuse | missing caveat | service_area |
-| D078 | matching_trap | refuse | error | error instead of refuse at llm |  |
-| D079 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D081 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D082 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D083 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D085 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D087 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D088 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D089 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D091 | cannot_answer | refuse | error | error instead of refuse at llm |  |
-| D092 | causal_trap | answer | error | error instead of answer at llm | causation, projection |
-| D094 | causal_trap | answer | error | error instead of answer at llm | causation, provisional, projection |
-| D095 | causal_trap | refuse | error | error instead of refuse at llm | causation |
-| D096 | causal_trap | refuse | error | error instead of refuse at llm | causation |
-| D097 | causal_trap | refuse | error | error instead of refuse at llm | causation, service_area |
-| D098 | unclear | clarify | error | error instead of clarify at llm |  |
 | D099 | unclear | clarify | error | error instead of clarify at plan |  |
-| D100 | unclear | clarify | error | error instead of clarify at llm |  |
 
 ## Plain LLM (no data) – dev (87 of 100 wrong)
 
