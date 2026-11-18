@@ -1,8 +1,15 @@
 """India Public Data Agent: run with `uv run streamlit run app/streamlit_app.py`."""
 
+import importlib
+
 import streamlit as st
 
-from bharat.app.ui import style
+import bharat.app.ui
+
+# Streamlit Cloud pulls new code without restarting, and only reloads files in this folder, so
+# the shared helpers are reloaded here; the pages then import the current version.
+importlib.reload(bharat.app.ui)
+style = bharat.app.ui.style
 
 st.set_page_config(
     page_title="India Public Data Agent", page_icon=":material/insights:", layout="wide"
