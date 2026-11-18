@@ -39,6 +39,13 @@ jobs:
           detail=$(tail -n 40 pytest.log | sed -e 's/%/%25/g' | sed -e ':a;N;$!ba;s/\n/%0A/g')
           echo "::error title=pytest::$detail"
 
+      # The same install Streamlit Community Cloud does, then the app's pages on it.
+      - name: App installs from requirements.txt
+        run: |
+          uv venv /tmp/cloud --python 3.13
+          uv pip install --python /tmp/cloud/bin/python -r requirements.txt pytest
+          /tmp/cloud/bin/python -m pytest tests/test_app.py -k "renders" -p no:cacheprovider
+
       # The whole warehouse, built and tested on a tiny made-up bronze folder.
       - name: Warehouse on fixture data
         id: warehouse

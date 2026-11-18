@@ -1,0 +1,5 @@
+# What Streamlit Community Cloud installs. The project is installed in editable mode, so the
+# app finds data/serving/serving.duckdb and eval/results next to the code.
+-e .
+altair>=5.4
+streamlit>=1.50
