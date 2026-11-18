@@ -4,7 +4,9 @@ import streamlit as st
 
 from bharat.app.ui import style
 
-st.set_page_config(page_title="India Public Data Agent", page_icon="📊", layout="wide")
+st.set_page_config(
+    page_title="India Public Data Agent", page_icon=":material/insights:", layout="wide"
+)
 style()
 
 pages = [
